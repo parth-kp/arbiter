@@ -1,0 +1,62 @@
+[project]
+name = "arbiter-eval"
+version = "0.1.0"
+description = "Evaluation framework for tool-using AI agents: simulated environments, deterministic final-state checks, real statistics, and CI regression gating."
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "Parth Patel", email = "parthkp13@gmail.com" }]
+requires-python = ">=3.12"
+keywords = ["llm", "agents", "evaluation", "evals", "tool-calling", "benchmark"]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = [
+    "pydantic>=2.9",
+    "typer>=0.15",
+    "httpx>=0.27",
+    "pyyaml>=6.0",
+    "sqlalchemy>=2.0",
+    "rich>=13.0",
+    "opentelemetry-api>=1.27",
+    "opentelemetry-sdk>=1.27",
+    "opentelemetry-exporter-otlp-proto-http>=1.27",
+]
+
+[project.optional-dependencies]
+server = ["fastapi>=0.115", "uvicorn>=0.32"]
+postgres = ["psycopg[binary]>=3.2"]
+langgraph = ["langgraph>=0.2", "langchain-openai>=0.2"]
+
+[project.scripts]
+arbiter = "arbiter.cli:app"
+
+[project.entry-points."arbiter.environments"]
+store = "arbiter_envs.store:environment"
+productivity = "arbiter_envs.productivity:environment"
+
+[project.urls]
+Repository = "https://github.com/parthkp13/arbiter"
+
+[dependency-groups]
+dev = ["pytest>=8.3", "pytest-asyncio>=0.24", "respx>=0.21", "ruff>=0.7", "fastapi>=0.115", "uvicorn>=0.32"]
+
+[build-system]
+requires = ["uv_build>=0.11.14,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = ["arbiter", "arbiter_envs"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = ["live: calls a real LLM provider (skipped unless ARBITER_LIVE=1)"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
