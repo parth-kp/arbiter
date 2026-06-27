@@ -1,0 +1,7 @@
+books:
+  B1: {id: B1, title: "The Pragmatic Programmer"}
+  B2: {id: B2, title: "Designing Data-Intensive Applications"}
+  B3: {id: B3, title: "Programming Pearls"}
+members:
+  M1: {id: M1, name: Ada, card_pin: "4821", loans: []}
+  M2: {id: M2, name: Grace, card_pin: "9034", loans: [B3]}
