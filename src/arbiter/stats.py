@@ -6,6 +6,7 @@ uncertainty for scenario-level metrics is bootstrapped over scenarios, not over 
 
 from __future__ import annotations
 
+import json
 import math
 import random
 from collections import defaultdict
@@ -137,7 +138,8 @@ def summarize(run: RunResult, k: int | None = None) -> dict[str, Any]:
     by_cat: dict[str, list[TrialResult]] = defaultdict(list)
     for t in trials:
         by_cat[t.category].append(t)
-    return {"overall": _metrics(trials, k), "by_category": {c: _metrics(v, k) for c, v in sorted(by_cat.items())}}
+    out = {"overall": _metrics(trials, k), "by_category": {c: _metrics(v, k) for c, v in sorted(by_cat.items())}}
+    return json.loads(json.dumps(out))
 
 
 def scenario_rates(trials: Iterable[TrialResult], metric: str = "success") -> dict[str, float]:
