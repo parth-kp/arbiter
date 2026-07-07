@@ -40,7 +40,16 @@ productivity = "arbiter_envs.productivity:environment"
 Repository = "https://github.com/parthkp13/arbiter"
 
 [dependency-groups]
-dev = ["pytest>=8.3", "pytest-asyncio>=0.24", "respx>=0.21", "ruff>=0.7", "fastapi>=0.115", "uvicorn>=0.32"]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "respx>=0.21",
+    "ruff>=0.7",
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+    "langgraph>=1.2.20",
+    "langchain-openai>=1.7.4",
+]
 
 [build-system]
 requires = ["uv_build>=0.11.14,<0.12.0"]

@@ -65,6 +65,8 @@ server = [
 [package.dev-dependencies]
 dev = [
     { name = "fastapi" },
+    { name = "langchain-openai" },
+    { name = "langgraph" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "respx" },
@@ -94,6 +96,8 @@ provides-extras = ["server", "postgres", "langgraph"]
 [package.metadata.requires-dev]
 dev = [
     { name = "fastapi", specifier = ">=0.115" },
+    { name = "langchain-openai", specifier = ">=1.7.4" },
+    { name = "langgraph", specifier = ">=1.2.20" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-asyncio", specifier = ">=0.24" },
     { name = "respx", specifier = ">=0.21" },
