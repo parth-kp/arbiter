@@ -123,6 +123,7 @@ class Runner:
             deps = AgentDeps(llm=self.llm, prompts_dir=self.prompts_dir, extra={"environment": self.env_cls.name})
             tools = env.tool_specs(descriptions=self.tool_descriptions, retrieval=self.config.agent.retrieval)
             history: list[Message] = []
+            env.conversation = history
             agent = None
             try:
                 agent = create_agent(self.config.agent, deps)

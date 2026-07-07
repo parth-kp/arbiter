@@ -148,6 +148,15 @@ class Environment:
         self.approvals: list[Approval] = []
         self._faults = [f.model_copy() for f in (faults or [])]
         self._policy_index: PolicyIndex | None = None
+        # The visible user/assistant conversation, kept current by the runner. Rules that depend on what the
+        # user actually said (e.g. "only send after explicit confirmation") read it here.
+        self.conversation: list[Any] = []
+
+    def last_user_message(self) -> str:
+        for m in reversed(self.conversation):
+            if getattr(m, "role", None) == "user":
+                return m.content or ""
+        return ""
 
     @classmethod
     def load_snapshot(cls, name: str = "default") -> dict[str, Any]:
