@@ -1,0 +1,15 @@
+name: langgraph
+agent:
+  type: langgraph
+  graph: langgraph_agent.graph:build_graph
+  model: anthropic/claude-haiku-5.5
+  max_tokens: 800
+user:
+  model: anthropic/claude-haiku-5.5
+judge:
+  enabled: false
+trials: 3
+concurrency: 4
+budget_usd: 0.30
+mode: cache
+set: golden

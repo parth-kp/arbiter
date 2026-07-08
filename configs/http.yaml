@@ -1,0 +1,12 @@
+name: http
+agent:
+  type: http
+  endpoint: http://localhost:8765/turn
+  model: example-http-agent
+user:
+  model: anthropic/claude-haiku-5.5
+judge:
+  enabled: false
+trials: 1
+mode: cache
+set: golden

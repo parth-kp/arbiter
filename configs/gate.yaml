@@ -1,0 +1,17 @@
+# Used by CI: replays the committed golden-set cassette, so no API key or network is needed.
+name: golden-v3
+agent:
+  type: reference
+  model: anthropic/claude-haiku-5.5
+  prompt_version: v3
+  tool_descriptions: v3
+  injection_defense: true
+  max_tokens: 800
+user:
+  model: anthropic/claude-haiku-5.5
+judge:
+  enabled: false
+trials: 3
+concurrency: 8
+mode: replay
+set: golden
