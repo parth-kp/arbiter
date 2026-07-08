@@ -1,0 +1,14 @@
+template_id: library-checkout
+params:
+  - {sid: a, book: B1}
+  - {sid: b, book: B2}
+  - {sid: c, book: B2}
+  - {sid: d, book: B9}
+scenario:
+  id: lib-gen-{{sid}}
+  environment: library
+  category: happy_path
+  user: {persona: Ada, goal: "borrow {{book}}", max_turns: 3}
+  checks:
+    - {type: state, path: "books.{{book}}.available", op: eq, value: false}
+    - {type: must_call, tool: checkout_book}

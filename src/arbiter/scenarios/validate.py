@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from arbiter.checks.base import MISSING, resolve_path
 from arbiter.checks.builtin import (
     ApprovalRequiredCheck,
     ArgConstraintCheck,
@@ -7,6 +8,7 @@ from arbiter.checks.builtin import (
     MustCallCheck,
     MustNotCallCheck,
     PredicateCheck,
+    StateCheck,
 )
 from arbiter.core.environment import Environment
 from arbiter.scenarios.spec import Scenario
@@ -17,8 +19,9 @@ def validate_scenario(s: Scenario, env_cls: type[Environment]) -> list[str]:
     problems = []
     if s.environment != env_cls.name:
         problems.append(f"environment {s.environment!r} != {env_cls.name!r}")
+    initial = None
     try:
-        env_cls.from_state(env_cls.build_state(s.snapshot, s.patch))
+        initial = env_cls.from_state(env_cls.build_state(s.snapshot, s.patch)).dump_state()
     except Exception as exc:
         problems.append(f"snapshot does not build: {exc}")
     tools = {d.name for d in env_cls.tool_defs()}
@@ -32,6 +35,12 @@ def validate_scenario(s: Scenario, env_cls: type[Environment]) -> list[str]:
         for n in names:
             if n not in tools:
                 problems.append(f"check {c.label()} references unknown tool {n!r}")
+        if isinstance(c, StateCheck) and initial is not None and c.op not in ("exists", "absent"):
+            parts = c.path.split(".")
+            # Entities created during the conversation won't exist yet, so only the collection+id prefix of
+            # deeper paths is required to resolve; that still catches typos like a non-existent order id.
+            if len(parts) >= 3 and resolve_path(initial, ".".join(parts[:2])) is MISSING:
+                problems.append(f"state path {c.path!r} refers to something not in the starting snapshot")
         if isinstance(c, PredicateCheck) and c.predicate not in preds:
             problems.append(f"unknown predicate {c.predicate!r}")
     for f in s.faults:
