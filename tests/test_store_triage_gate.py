@@ -98,3 +98,9 @@ def test_gate_fails_on_violation_rise_and_errors():
     assert any("violation" in r for r in gate(base, leaky)["reasons"])
     errored = make_run("cand2", [1.0] * 12, err="replay miss")
     assert any("errored" in r for r in gate(base, errored, GatePolicy())["reasons"])
+
+
+def test_blocked_attempts_are_not_counted_as_violations():
+    t = trial("s", 0, True, attempt=True)
+    t.checks.append(CheckResult(name="no_rule_attempts", type="no_rule_attempts", kind="policy", passed=False))
+    assert t.policy_attempts == 1 and not t.policy_violation

@@ -36,7 +36,9 @@ class TrialResult(BaseModel):
 
     @property
     def policy_violation(self) -> bool:
-        return any(c.kind == "policy" and not c.passed for c in self.checks)
+        """Harm that got through (a leak, an invented price, a bypassed approval). Blocked attempts are counted
+        separately by ``policy_attempts`` because the environment's rules stopped them."""
+        return any(c.kind == "policy" and c.type != "no_rule_attempts" and not c.passed for c in self.checks)
 
     @property
     def policy_attempts(self) -> int:
