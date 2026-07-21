@@ -568,5 +568,37 @@ class ProductivityEnvironment(Environment):
             ok = ok and _parse_dt(ev.end, tz) == _parse_dt(end_utc, UTC)
         return ok, f"{event_id} = {_utc(_parse_dt(ev.start, tz))} to {_utc(_parse_dt(ev.end, tz))}"
 
+    @predicate()
+    def new_event_matches(self, attendees: list[str], window_start_utc: str | None = None,
+                          window_end_utc: str | None = None, min_minutes: int | None = None,
+                          max_minutes: int | None = None, count: int = 1) -> tuple[bool, str]:
+        """Exactly ``count`` events created in this conversation include all ``attendees`` and fit the window."""
+        tz = self._user_tz()
+        want = {a.lower() for a in attendees}
+        lo = _parse_dt(window_start_utc, UTC) if window_start_utc else None
+        hi = _parse_dt(window_end_utc, UTC) if window_end_utc else None
+        hits, seen = [], []
+        for ev in self.state.events.values():
+            if not ev.id.startswith("ev_new_") or ev.status not in ("confirmed", "tentative"):
+                continue
+            start, end = _parse_dt(ev.start, tz), _parse_dt(ev.end, tz)
+            minutes = (end - start).total_seconds() / 60
+            seen.append(f"{ev.id} {_utc(start)}-{_utc(end)} {sorted(ev.attendees)}")
+            if not want <= {a.lower() for a in ev.attendees}:
+                continue
+            if (lo and start < lo) or (hi and end > hi):
+                continue
+            if (min_minutes and minutes < min_minutes) or (max_minutes and minutes > max_minutes):
+                continue
+            hits.append(ev.id)
+        return len(hits) == count, f"matching {hits}; new events: {seen or 'none'}"
+
+    @predicate()
+    def draft_exists_to(self, address: str) -> tuple[bool, str]:
+        """A draft addressed to ``address`` exists (sent or not)."""
+        addr = address.lower()
+        found = [d.id for d in self.state.drafts.values() if addr in {a.lower() for a in d.to + d.cc}]
+        return bool(found), f"drafts to {address}: {found}"
+
 
 environment = ProductivityEnvironment

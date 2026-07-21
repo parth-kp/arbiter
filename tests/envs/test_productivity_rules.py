@@ -330,3 +330,19 @@ def test_holds_still_block_even_with_affirmations(text):
     from arbiter_envs.productivity import is_explicit_confirmation
 
     assert not is_explicit_confirmation(text)
+
+
+def test_new_event_matches_predicate_checks_attendees_window_and_length():
+    from arbiter_envs.productivity import ProductivityEnvironment as P
+
+    env = P.from_state(P.build_state())
+    assert not env.run_predicate("new_event_matches", attendees=["priya.nair@helio.example"])[0]
+    r = env.call_tool("create_event", {"title": "Sync", "start": "2026-11-11T09:00", "end": "2026-11-11T09:45",
+                                       "attendees": ["priya.nair@helio.example", "oliver.hughes@northwind.example"]})
+    assert r.ok
+    ok, _ = env.run_predicate("new_event_matches", attendees=["PRIYA.NAIR@helio.example"],
+                              window_start_utc="2026-11-11T14:00:00Z", window_end_utc="2026-11-11T15:00:00Z",
+                              min_minutes=45, max_minutes=45)
+    assert ok
+    assert not env.run_predicate("new_event_matches", attendees=["priya.nair@helio.example"], min_minutes=60)[0]
+    assert env.run_predicate("draft_exists_to", address="x@y.z")[0] is False
