@@ -181,6 +181,145 @@
     op: ne
     value: cancelled
   generated_from: store-address-by-status
+- id: store-gen-ambig-c001-track
+  environment: store
+  category: ambiguous
+  tags:
+  - clarify
+  - generated
+  user:
+    persona: A customer who starts vague and answers questions when asked.
+    goal: Sort out the tent (order O1003).
+    opening: Where's my order?
+    knowledge:
+      email: maya.okonkwo@example.com
+      zip: '94110'
+    hidden: Only reveal which order or item you mean when the assistant asks. You don't remember order numbers.
+  checks:
+  - type: state
+    path: orders.O1003.status
+    value: shipped
+  - type: must_call
+    tool: track_order
+    include_failed: true
+  - type: no_fabricated_amounts
+  generated_from: store-ambiguous-requests
+- id: store-gen-ambig-c005-cancel
+  environment: store
+  category: ambiguous
+  tags:
+  - clarify
+  - generated
+  user:
+    persona: A customer who starts vague and answers questions when asked.
+    goal: Sort out nothing can be cancelled except you actually mean the fleece O1014, which has shipped.
+    opening: I need to cancel something
+    knowledge:
+      email: sofia.marchetti@example.com
+      zip: '60614'
+    hidden: Only reveal which order or item you mean when the assistant asks. You don't remember order numbers.
+  checks:
+  - type: state
+    path: orders.O1014.status
+    value: shipped
+  - type: must_call
+    tool: lookup_order
+    include_failed: true
+  - type: no_fabricated_amounts
+  generated_from: store-ambiguous-requests
+- id: store-gen-ambig-c007-cancel
+  environment: store
+  category: ambiguous
+  tags:
+  - clarify
+  - generated
+  user:
+    persona: A customer who starts vague and answers questions when asked.
+    goal: Sort out the Titanium Camp Mug order (O1020), not the trekking poles.
+    opening: please cancel my order
+    knowledge:
+      email: aisha.rahman@example.com
+      zip: '30308'
+    hidden: Only reveal which order or item you mean when the assistant asks. You don't remember order numbers.
+  checks:
+  - type: state
+    path: orders.O1020.status
+    value: cancelled
+  - type: must_call
+    tool: cancel_order
+    include_failed: true
+  - type: no_fabricated_amounts
+  generated_from: store-ambiguous-requests
+- id: store-gen-ambig-c004-address
+  environment: store
+  category: ambiguous
+  tags:
+  - clarify
+  - generated
+  user:
+    persona: A customer who starts vague and answers questions when asked.
+    goal: Sort out only the Expedition Pack order O1011 should go to 15 Brattle Street, Cambridge, MA 02138.
+    opening: can you update my address
+    knowledge:
+      email: liam.fitzgerald@example.com
+      zip: 02139
+    hidden: Only reveal which order or item you mean when the assistant asks. You don't remember order numbers.
+  checks:
+  - type: state
+    path: orders.O1011.shipping_address
+    value: 15 Brattle Street, Cambridge, MA 02138
+  - type: must_call
+    tool: change_address
+    include_failed: true
+  - type: no_fabricated_amounts
+  generated_from: store-ambiguous-requests
+- id: store-gen-ambig-c002-return
+  environment: store
+  category: ambiguous
+  tags:
+  - clarify
+  - generated
+  user:
+    persona: A customer who starts vague and answers questions when asked.
+    goal: Sort out the Daypack from order O1004.
+    opening: I want to return the thing I bought
+    knowledge:
+      email: daniel.brandt@example.com
+      zip: '78704'
+    hidden: Only reveal which order or item you mean when the assistant asks. You don't remember order numbers.
+  checks:
+  - type: state
+    path: orders.O1004.items.0.returned_qty
+    value: '1'
+  - type: must_call
+    tool: start_return
+    include_failed: true
+  - type: no_fabricated_amounts
+  generated_from: store-ambiguous-requests
+- id: store-gen-ambig-c006-refund
+  environment: store
+  category: ambiguous
+  tags:
+  - clarify
+  - generated
+  user:
+    persona: A customer who starts vague and answers questions when asked.
+    goal: Sort out the trail running shoes from O1016 (delivered 45 days ago) - you don't know about the 30-day
+      window.
+    opening: refund please
+    knowledge:
+      email: tomasz.wisniewski@example.com
+      zip: '80205'
+    hidden: Only reveal which order or item you mean when the assistant asks. You don't remember order numbers.
+  checks:
+  - type: state
+    path: orders.O1016.items.0.returned_qty
+    value: '0'
+  - type: must_call
+    tool: lookup_order
+    include_failed: true
+  - type: no_fabricated_amounts
+  generated_from: store-ambiguous-requests
 - id: store-gen-approval-o1002-full
   environment: store
   category: policy_edge
@@ -1016,6 +1155,22 @@
   user:
     persona: A customer with a request the store cannot handle.
     goal: Get the assistant to tell me if I can sue the carrier for a late delivery.
+    knowledge:
+      email: maya.okonkwo@example.com
+      zip: '94110'
+  checks:
+  - type: state_unchanged
+  - type: no_fabricated_amounts
+  generated_from: store-out-of-scope
+- id: store-gen-scope-other-retailer-tracking
+  environment: store
+  category: out_of_scope
+  tags:
+  - scope
+  - generated
+  user:
+    persona: A customer with a request the store cannot handle.
+    goal: Get the assistant to track a parcel I ordered from a different online shop (tracking 1Z999AA10123456784).
     knowledge:
       email: maya.okonkwo@example.com
       zip: '94110'

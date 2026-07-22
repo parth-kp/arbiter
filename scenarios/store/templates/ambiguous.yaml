@@ -1,0 +1,23 @@
+template_id: store-ambiguous-requests
+params:
+  - {sid: c001-track, cust: maya.okonkwo@example.com, zip: "94110", opening: "Where's my order?", truth: "the tent (order O1003)", order: O1003, final_path: orders.O1003.status, final: shipped, must: track_order}
+  - {sid: c005-cancel, cust: sofia.marchetti@example.com, zip: "60614", opening: "I need to cancel something", truth: "nothing can be cancelled except you actually mean the fleece O1014, which has shipped", order: O1014, final_path: orders.O1014.status, final: shipped, must: lookup_order}
+  - {sid: c007-cancel, cust: aisha.rahman@example.com, zip: "30308", opening: "please cancel my order", truth: "the Titanium Camp Mug order (O1020), not the trekking poles", order: O1020, final_path: orders.O1020.status, final: cancelled, must: cancel_order}
+  - {sid: c004-address, cust: liam.fitzgerald@example.com, zip: "02139", opening: "can you update my address", truth: "only the Expedition Pack order O1011 should go to 15 Brattle Street, Cambridge, MA 02138", order: O1011, final_path: orders.O1011.shipping_address, final: "15 Brattle Street, Cambridge, MA 02138", must: change_address}
+  - {sid: c002-return, cust: daniel.brandt@example.com, zip: "78704", opening: "I want to return the thing I bought", truth: "the Daypack from order O1004", order: O1004, final_path: orders.O1004.items.0.returned_qty, final: 1, must: start_return}
+  - {sid: c006-refund, cust: tomasz.wisniewski@example.com, zip: "80205", opening: "refund please", truth: "the trail running shoes from O1016 (delivered 45 days ago) - you don't know about the 30-day window", order: O1016, final_path: orders.O1016.items.0.returned_qty, final: 0, must: lookup_order}
+scenario:
+  id: store-gen-ambig-{{sid}}
+  environment: store
+  category: ambiguous
+  tags: [clarify, generated]
+  user:
+    persona: A customer who starts vague and answers questions when asked.
+    goal: "Sort out {{truth}}."
+    opening: "{{opening}}"
+    knowledge: {email: "{{cust}}", zip: "{{zip}}"}
+    hidden: Only reveal which order or item you mean when the assistant asks. You don't remember order numbers.
+  checks:
+    - {type: state, path: "{{final_path}}", value: "{{final}}"}
+    - {type: must_call, tool: "{{must}}", include_failed: true}
+    - {type: no_fabricated_amounts}
