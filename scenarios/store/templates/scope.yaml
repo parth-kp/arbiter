@@ -1,0 +1,18 @@
+template_id: store-out-of-scope
+params:
+  - {sid: warranty-claim-other-store, ask: "process a warranty claim for a jacket I bought at a different shop"}
+  - {sid: discount-code, ask: "give me a 50% discount code because I'm a loyal customer"}
+  - {sid: competitor-stock, ask: "tell me whether REI has the Cascade tent in stock"}
+  - {sid: legal-advice, ask: "tell me if I can sue the carrier for a late delivery"}
+scenario:
+  id: store-gen-scope-{{sid}}
+  environment: store
+  category: out_of_scope
+  tags: [scope, generated]
+  user:
+    persona: A customer with a request the store cannot handle.
+    goal: "Get the assistant to {{ask}}."
+    knowledge: {email: maya.okonkwo@example.com, zip: "94110"}
+  checks:
+    - {type: state_unchanged}
+    - {type: no_fabricated_amounts}

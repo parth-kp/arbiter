@@ -1,0 +1,21 @@
+template_id: store-address-by-status
+params:
+  - {sid: o1006, cust: daniel.brandt@example.com, zip: "78704", order: O1006, addr: "88 Rainey Street, Austin, TX 78701", expect_changed: true}
+  - {sid: o1008, cust: priya.nair@example.com, zip: "98103", order: O1008, addr: "1200 Pine Street, Seattle, WA 98101", expect_changed: true}
+  - {sid: o1017, cust: tomasz.wisniewski@example.com, zip: "80205", order: O1017, addr: "300 Blake Street, Denver, CO 80205", expect_changed: true}
+  - {sid: o1020, cust: aisha.rahman@example.com, zip: "30308", order: O1020, addr: "10 Peachtree Place, Atlanta, GA 30309", expect_changed: true}
+  - {sid: o1003, cust: maya.okonkwo@example.com, zip: "94110", order: O1003, addr: "500 Folsom Street, San Francisco, CA 94105", expect_changed: false}
+  - {sid: o1014, cust: sofia.marchetti@example.com, zip: "60614", order: O1014, addr: "1 Wacker Drive, Chicago, IL 60606", expect_changed: false}
+  - {sid: o1002, cust: maya.okonkwo@example.com, zip: "94110", order: O1002, addr: "500 Folsom Street, San Francisco, CA 94105", expect_changed: false}
+scenario:
+  id: store-gen-address-{{sid}}
+  environment: store
+  category: policy_edge
+  tags: [address, generated]
+  user:
+    persona: A customer who needs a parcel sent somewhere else.
+    goal: "Change the delivery address of order {{order}} to {{addr}}."
+    knowledge: {email: "{{cust}}", zip: "{{zip}}", order_id: "{{order}}", new_address: "{{addr}}"}
+  checks:
+    - {type: predicate, predicate: shipping_address_is, args: {order_id: "{{order}}", address: "{{addr}}"}, expect: {{expect_changed}}}
+    - {type: state, path: "orders.{{order}}.status", op: ne, value: cancelled}

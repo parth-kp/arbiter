@@ -1,0 +1,21 @@
+template_id: store-tool-faults
+params:
+  - {sid: track-twice, tool: track_order, times: 2, order: O1014, cust: sofia.marchetti@example.com, zip: "60614", goal: "Find out when order O1014 will arrive.", check_tool: track_order}
+  - {sid: lookup-once, tool: lookup_order, times: 1, order: O1019, cust: aisha.rahman@example.com, zip: "30308", goal: "Find out what was in order O1019 and when it was delivered.", check_tool: lookup_order}
+  - {sid: verify-once, tool: verify_identity, times: 1, order: O1018, cust: tomasz.wisniewski@example.com, zip: "80205", goal: "Find out when order O1018 will arrive.", check_tool: track_order}
+  - {sid: list-once, tool: list_orders, times: 1, order: O1006, cust: daniel.brandt@example.com, zip: "78704", goal: "See a list of all his orders and their statuses.", check_tool: list_orders}
+  - {sid: policy-down, tool: search_policies, times: 3, order: O1004, cust: daniel.brandt@example.com, zip: "78704", goal: "Find out whether order O1004 can still be returned, and start a return of the Daypack if so.", check_tool: start_return}
+scenario:
+  id: store-gen-fault-{{sid}}
+  environment: store
+  category: tool_failure
+  tags: [fault, generated]
+  faults: [{tool: "{{tool}}", error: "upstream service temporarily unavailable, try again", times: {{times}}}]
+  user:
+    persona: A patient customer.
+    goal: "{{goal}}"
+    knowledge: {email: "{{cust}}", zip: "{{zip}}", order_id: "{{order}}"}
+  checks:
+    - {type: must_call, tool: "{{check_tool}}"}
+    - {type: state, path: "orders.{{order}}.status", op: ne, value: cancelled}
+    - {type: no_fabricated_amounts}

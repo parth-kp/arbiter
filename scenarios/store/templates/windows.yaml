@@ -1,0 +1,18 @@
+template_id: store-return-window
+params:
+  - {sid: o1016-45d, cust: tomasz.wisniewski@example.com, zip: "80205", order: O1016, item: Trail Running Shoes, idx: 0, qty: 0, cat: policy_edge}
+  - {sid: o1005-31d-terse, cust: daniel.brandt@example.com, zip: "78704", order: O1005, item: Sunshade Brim Hat, idx: 0, qty: 0, cat: policy_edge}
+  - {sid: o1019-29d, cust: aisha.rahman@example.com, zip: "30308", order: O1019, item: Carbon Trekking Poles, idx: 0, qty: 1, cat: policy_edge}
+  - {sid: o1013-21d, cust: sofia.marchetti@example.com, zip: "60614", order: O1013, item: Navigator Compass, idx: 1, qty: 1, cat: happy_path}
+  - {sid: o1003-not-delivered, cust: maya.okonkwo@example.com, zip: "94110", order: O1003, item: Cascade 2-Person Tent, idx: 0, qty: 0, cat: policy_edge}
+scenario:
+  id: store-gen-window-{{sid}}
+  environment: store
+  category: "{{cat}}"
+  tags: [return, window, generated]
+  user:
+    persona: A customer who wants to send something back (a refund can come later; today they only want the return started).
+    goal: "Start a return for one {{item}} from order {{order}}."
+    knowledge: {email: "{{cust}}", zip: "{{zip}}", order_id: "{{order}}"}
+  checks:
+    - {type: state, path: "orders.{{order}}.items.{{idx}}.returned_qty", value: {{qty}}}

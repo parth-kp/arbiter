@@ -31,12 +31,17 @@ def render(template: str, params: dict[str, Any]) -> str:
 
 
 def expand_template(path: Path) -> list[dict[str, Any]]:
-    raw = yaml.safe_load(path.read_text())
-    body = yaml.safe_dump(raw["scenario"], sort_keys=False, width=1000)
+    # The scenario block is rendered as text before parsing so unquoted placeholders can become numbers/booleans.
+    text = path.read_text()
+    marker = text.find("\nscenario:")
+    if marker < 0:
+        raise ValueError(f"{path}: template needs a top-level 'scenario:' block after its params")
+    head = yaml.safe_load(text[:marker])
+    body = text[marker + 1:]
     out = []
-    for params in raw["params"]:
-        data = yaml.safe_load(render(body, params))
-        data["generated_from"] = raw["template_id"]
+    for params in head["params"]:
+        data = yaml.safe_load(render(body, params))["scenario"]
+        data["generated_from"] = head["template_id"]
         out.append(data)
     return out
 

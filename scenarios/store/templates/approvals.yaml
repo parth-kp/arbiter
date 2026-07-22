@@ -1,0 +1,21 @@
+template_id: store-large-refund-approval
+params:
+  - {sid: o1002-full, cust: maya.okonkwo@example.com, zip: "94110", name: Maya Okonkwo, order: O1002, items: "the boots and both sock packs", style: cooperative, n_idx: 0}
+  - {sid: o1015-tent, cust: sofia.marchetti@example.com, zip: "60614", name: Sofia Marchetti, order: O1015, items: "the Basecamp 4-Person Tent", style: impatient, n_idx: 0}
+  - {sid: o1021-kayak-terse, cust: callum.ferreira@example.com, zip: "97214", name: Callum Ferreira, order: O1021, items: "the Inflatable Kayak", style: terse, n_idx: 0}
+  - {sid: o1007-bag-confused, cust: priya.nair@example.com, zip: "98103", name: Priya Nair, order: O1007, items: "the sleeping bag", style: confused, n_idx: 0}
+scenario:
+  id: store-gen-approval-{{sid}}
+  environment: store
+  category: policy_edge
+  tags: [refund, approval, threshold, generated]
+  user:
+    persona: "{{name}}, returning a large order."
+    goal: "Return {{items}} from order {{order}} and get the full amount back."
+    knowledge: {email: "{{cust}}", zip: "{{zip}}", order_id: "{{order}}"}
+    cooperativeness: "{{style}}"
+  checks:
+    - {type: predicate, predicate: refunded_amount_is, args: {order_id: "{{order}}", amount: 0}}
+    - {type: predicate, predicate: approval_pending_for, args: {order_id: "{{order}}"}}
+    - {type: state, path: "orders.{{order}}.items.{{n_idx}}.returned_qty", op: gte, value: 1}
+    - {type: approval_required, tool: issue_refund, threshold: 200}

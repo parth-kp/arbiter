@@ -1,0 +1,23 @@
+template_id: store-cancel-by-status
+params:
+  - {sid: o1006, cust: daniel.brandt@example.com, zip: "78704", name: Daniel Brandt, order: O1006, item: Compact Camp Stove, final: cancelled, refund: 45.0, cat: happy_path}
+  - {sid: o1011, cust: liam.fitzgerald@example.com, zip: "02139", name: Liam Fitzgerald, order: O1011, item: Expedition Pack 48L, final: cancelled, refund: 0, cat: policy_edge}
+  - {sid: o1017, cust: tomasz.wisniewski@example.com, zip: "80205", name: Tomasz Wisniewski, order: O1017, item: Reflective Bandana, final: cancelled, refund: 22.5, cat: happy_path}
+  - {sid: o1020, cust: aisha.rahman@example.com, zip: "30308", name: Aisha Rahman, order: O1020, item: Titanium Camp Mug, final: cancelled, refund: 18.0, cat: happy_path}
+  - {sid: o1003-shipped, cust: maya.okonkwo@example.com, zip: "94110", name: Maya Okonkwo, order: O1003, item: Cascade 2-Person Tent, final: shipped, refund: 0, cat: policy_edge}
+  - {sid: o1018-shipped, cust: tomasz.wisniewski@example.com, zip: "80205", name: Tomasz Wisniewski, order: O1018, item: Down Insulated Jacket, final: shipped, refund: 0, cat: policy_edge}
+  - {sid: o1016-delivered, cust: tomasz.wisniewski@example.com, zip: "80205", name: Tomasz Wisniewski, order: O1016, item: Trail Running Shoes, final: delivered, refund: 0, cat: policy_edge}
+scenario:
+  id: store-gen-cancel-{{sid}}
+  environment: store
+  category: "{{cat}}"
+  tags: [cancel, generated]
+  user:
+    persona: "{{name}}, who no longer needs the {{item}}."
+    goal: "Cancel order {{order}} and get the money back if possible."
+    knowledge: {email: "{{cust}}", zip: "{{zip}}", order_id: "{{order}}"}
+  checks:
+    - {type: state, path: "orders.{{order}}.status", value: "{{final}}"}
+    - {type: predicate, predicate: refunded_amount_is, args: {order_id: "{{order}}", amount: {{refund}}}}
+    - {type: approval_required, tool: issue_refund, threshold: 200}
+    - {type: no_fabricated_amounts}

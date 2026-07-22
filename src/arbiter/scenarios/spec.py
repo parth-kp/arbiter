@@ -88,7 +88,7 @@ def load_scenario_file(path: Path) -> list[Scenario]:
 
 def load_scenarios(root: str | Path, *, environment: str | None = None) -> list[Scenario]:
     root = Path(root)
-    files = [root] if root.is_file() else sorted(p for p in root.rglob("*.y*ml") if "sets" not in p.parts)
+    files = [root] if root.is_file() else sorted(p for p in root.rglob("*.y*ml") if not {"sets", "templates"} & set(p.parts))
     scenarios: list[Scenario] = []
     seen: dict[str, str] = {}
     for f in files:

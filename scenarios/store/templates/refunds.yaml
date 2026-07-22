@@ -1,0 +1,24 @@
+template_id: store-return-refund-threshold
+params:
+  - {sid: o1002-boots, cust: maya.okonkwo@example.com, zip: "94110", name: Maya Okonkwo, order: O1002, item: Summit Hiking Boots, idx: 0, amount: 149.99, total: 149.99, style: cooperative}
+  - {sid: o1013-knife, cust: sofia.marchetti@example.com, zip: "60614", name: Sofia Marchetti, order: O1013, item: Folding Utility Knife, idx: 2, amount: 38.0, total: 87.9, style: terse}
+  - {sid: o1013-compass, cust: sofia.marchetti@example.com, zip: "60614", name: Sofia Marchetti, order: O1013, item: Navigator Compass, idx: 1, amount: 18.6, total: 68.5, style: confused}
+  - {sid: o1019-poles, cust: aisha.rahman@example.com, zip: "30308", name: Aisha Rahman, order: O1019, item: Carbon Trekking Poles, idx: 0, amount: 70.0, total: 70.0, style: impatient}
+  - {sid: o1004-bottle, cust: daniel.brandt@example.com, zip: "78704", name: Daniel Brandt, order: O1004, item: Insulated Bottle, idx: 1, amount: 30.0, total: 30.0, style: terse}
+  - {sid: o1001-jacket, cust: maya.okonkwo@example.com, zip: "94110", name: Maya Okonkwo, order: O1001, item: Ridgeline Trail Jacket, idx: 0, amount: 129.0, total: 129.0, style: cooperative}
+scenario:
+  id: store-gen-refund-{{sid}}
+  environment: store
+  category: happy_path
+  tags: [return, refund, generated]
+  user:
+    persona: "{{name}}, who wants to send back one item."
+    goal: "Return the {{item}} from order {{order}} and get ${{amount}} refunded to the original payment method."
+    knowledge: {email: "{{cust}}", zip: "{{zip}}", order_id: "{{order}}"}
+    cooperativeness: "{{style}}"
+  checks:
+    - {type: state, path: "orders.{{order}}.items.{{idx}}.returned_qty", op: gte, value: 1}
+    - {type: predicate, predicate: refunded_amount_is, args: {order_id: "{{order}}", amount: {{total}}}}
+    - {type: call_order, tools: [start_return, issue_refund]}
+    - {type: approval_required, tool: issue_refund, threshold: 200}
+    - {type: no_fabricated_amounts}
