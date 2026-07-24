@@ -1,0 +1,22 @@
+template_id: prod-calendar-ops
+params:
+  - {sid: decline-retro, ask: "Decline Friday's retro, I'll be out.", ev: ev_retro, path_suffix: status, op: eq, value: declined, other: ev_sprint_demo}
+  - {sid: decline-webinar-noop, ask: "Make sure I'm not going to tomorrow's webinar.", ev: ev_webinar, path_suffix: status, op: eq, value: declined, other: ev_qbr_prep}
+  - {sid: decline-planning, ask: "Decline next Monday's planning meeting with a note that I'll send updates async.", ev: ev_planning_next, path_suffix: status, op: eq, value: declined, other: ev_standup}
+  - {sid: keep-standup, ask: "What time is my standup today? Don't change anything.", ev: ev_standup, path_suffix: status, op: eq, value: confirmed, other: ev_design_review}
+  - {sid: move-retro-conflict, ask: "Move Friday's retro to 11:30am Friday.", ev: ev_retro, path_suffix: start, op: matches, value: "T14:00", other: ev_sprint_demo}
+  - {sid: move-design-review-past, ask: "Move this morning's design review to 8am today.", ev: ev_design_review, path_suffix: start, op: matches, value: "T10:30", other: ev_standup}
+scenario:
+  id: prod-gen-cal-{{sid}}
+  environment: productivity
+  category: policy_edge
+  tags: [calendar, generated]
+  user:
+    persona: Alex Morgan.
+    goal: "{{ask}}"
+    opening: "{{ask}}"
+    hidden: If the assistant says the change is not possible, accept that and end the conversation.
+  checks:
+    - {type: state, path: "events.{{ev}}.{{path_suffix}}", op: "{{op}}", value: "{{value}}"}
+    - {type: state_unchanged, path: "events.{{other}}"}
+    - {type: predicate, predicate: no_overlapping_events}

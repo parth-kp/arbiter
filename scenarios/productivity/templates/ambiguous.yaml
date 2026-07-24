@@ -1,0 +1,21 @@
+template_id: prod-ambiguous-requests
+params:
+  - {sid: meet-sam, opening: "Set up a meeting with Sam.", truth: "45 minutes on Thursday at 1pm New York time", email: sam.okafor@helio.example, ws: "2026-11-12T18:00:00Z", we: "2026-11-12T18:45:00Z", dur: 45}
+  - {sid: meet-rita, opening: "Get me some time with Rita this week.", truth: "30 minutes on Friday at 4pm New York time", email: rita.chen@helio.example, ws: "2026-11-13T21:00:00Z", we: "2026-11-13T21:30:00Z", dur: 30}
+  - {sid: meet-lena, opening: "Book a call with Lena.", truth: "30 minutes on Wednesday at 9am New York time", email: lena.fischer@helio.example, ws: "2026-11-11T14:00:00Z", we: "2026-11-11T14:30:00Z", dur: 30}
+  - {sid: meet-dana, opening: "Lunch with Dana sometime?", truth: "60 minutes on Friday at noon New York time", email: dana.whitfield@helio.example, ws: "2026-11-13T17:00:00Z", we: "2026-11-13T18:00:00Z", dur: 60}
+  - {sid: meet-nora, opening: "Nora wants to talk, set it up", truth: "30 minutes on Wednesday at 3pm New York time", email: nora.bianchi@clientco.example, ws: "2026-11-11T20:00:00Z", we: "2026-11-11T20:30:00Z", dur: 30}
+scenario:
+  id: prod-gen-ambig-{{sid}}
+  environment: productivity
+  category: ambiguous
+  tags: [clarify, calendar, generated]
+  user:
+    persona: Alex Morgan, who gives short instructions.
+    goal: "Get a meeting booked: {{truth}}."
+    opening: "{{opening}}"
+    hidden: "Only give the day, time and length when the assistant asks. You want exactly: {{truth}}."
+  checks:
+    - type: predicate
+      predicate: new_event_matches
+      args: {attendees: ["{{email}}"], window_start_utc: "{{ws}}", window_end_utc: "{{we}}", min_minutes: {{dur}}, max_minutes: {{dur}}}

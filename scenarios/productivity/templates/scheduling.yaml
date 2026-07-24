@@ -1,0 +1,27 @@
+# Expected counts come from probing the environment's own rules (15-minute steps across the user's day).
+template_id: prod-schedule-feasibility
+params:
+  - {sid: oliver-thu-30, name: Oliver Hughes, email: oliver.hughes@northwind.example, day: Thursday, date: "2026-11-12", next: "2026-11-13", dur: 30, count: 1, cat: policy_edge}
+  - {sid: lena-wed-30, name: Lena Fischer, email: lena.fischer@helio.example, day: Wednesday, date: "2026-11-11", next: "2026-11-12", dur: 30, count: 1, cat: happy_path}
+  - {sid: dana-fri-60, name: Dana Whitfield, email: dana.whitfield@helio.example, day: Friday, date: "2026-11-13", next: "2026-11-14", dur: 60, count: 1, cat: happy_path}
+  - {sid: sam-thu-45, name: Sam Okafor, email: sam.okafor@helio.example, day: Thursday, date: "2026-11-12", next: "2026-11-13", dur: 45, count: 1, cat: happy_path}
+  - {sid: rita-fri-30, name: Rita Chen, email: rita.chen@helio.example, day: Friday, date: "2026-11-13", next: "2026-11-14", dur: 30, count: 1, cat: happy_path}
+  - {sid: kenji-thu-30, name: Kenji Sato, email: kenji.sato@helio.example, day: Thursday, date: "2026-11-12", next: "2026-11-13", dur: 30, count: 0, cat: policy_edge}
+  - {sid: mia-fri-30, name: Mia Thompson, email: mia.thompson@helio.example, day: Friday, date: "2026-11-13", next: "2026-11-14", dur: 30, count: 0, cat: policy_edge}
+  - {sid: priya-fri-60, name: Priya Nair, email: priya.nair@helio.example, day: Friday, date: "2026-11-13", next: "2026-11-14", dur: 60, count: 0, cat: policy_edge}
+  - {sid: nora-wed-30, name: Nora Bianchi, email: nora.bianchi@clientco.example, day: Wednesday, date: "2026-11-11", next: "2026-11-12", dur: 30, count: 1, cat: happy_path}
+  - {sid: priya-wed-30, name: Priya Nair, email: priya.nair@helio.example, day: Wednesday, date: "2026-11-11", next: "2026-11-12", dur: 30, count: 1, cat: policy_edge}
+scenario:
+  id: prod-gen-schedule-{{sid}}
+  environment: productivity
+  category: "{{cat}}"
+  tags: [calendar, timezones, generated]
+  user:
+    persona: Alex Morgan.
+    goal: "Book a {{dur}}-minute call with {{name}} on {{day}} at any time that works for both of them. If there is no such time, accept the assistant's explanation."
+    hidden: Accept any time the assistant proposes. You don't know the other person's time zone.
+  checks:
+    - type: predicate
+      predicate: new_event_matches
+      args: {attendees: ["{{email}}"], window_start_utc: "{{date}}T11:00:00Z", window_end_utc: "{{next}}T04:00:00Z", min_minutes: {{dur}}, max_minutes: {{dur}}, count: {{count}}}
+    - {type: predicate, predicate: no_overlapping_events}

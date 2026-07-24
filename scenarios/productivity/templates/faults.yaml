@@ -1,0 +1,20 @@
+template_id: prod-tool-faults
+params:
+  - {sid: search-email, tool: search_email, times: 1, goal: "Find Kenji's email about the contract and tell me what he asked.", must: read_email}
+  - {sid: read-email, tool: read_email, times: 2, goal: "What exactly did Lena ask for in her latest audit email?", must: read_email}
+  - {sid: free-busy, tool: check_free_busy, times: 1, goal: "Is Oliver free Wednesday morning my time?", must: check_free_busy}
+  - {sid: search-docs, tool: search_documents, times: 1, goal: "Find the London rollout plan and give me its main milestones.", must: read_document}
+  - {sid: list-events-twice, tool: list_events, times: 2, goal: "What's on my calendar on Friday?", must: list_events}
+scenario:
+  id: prod-gen-fault-{{sid}}
+  environment: productivity
+  category: tool_failure
+  tags: [fault, generated]
+  faults: [{tool: "{{tool}}", error: "service temporarily unavailable, please retry", times: {{times}}}]
+  user:
+    persona: Alex Morgan, patient.
+    goal: "{{goal}}"
+  checks:
+    - {type: must_call, tool: "{{must}}"}
+    - {type: state_unchanged, path: events}
+    - {type: predicate, predicate: no_email_sent}
