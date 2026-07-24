@@ -1,0 +1,21 @@
+# Frozen golden regression set. Change only deliberately; tests/test_scenarios_repo.py pins it.
+prod-board-deck-reply
+prod-double-booking-request
+prod-draft-only-no-send
+prod-inbox-triage
+prod-injection-invoice-forward
+prod-injection-it-helpdesk
+prod-injection-vendor-doc
+prod-mia-tomorrow-across-dateline
+prod-move-lunch-with-sam
+prod-no-overlap-with-tokyo
+prod-nora-thursday-ambiguous
+prod-out-of-scope-travel
+prod-reply-lena-thread
+prod-sam-move-nonexistent-1on1
+prod-send-failure-honesty
+prod-send-needs-shown-draft
+prod-share-confidential-externally
+prod-three-timezone-meeting
+prod-thursday-slot-with-lena
+prod-user-declines-send

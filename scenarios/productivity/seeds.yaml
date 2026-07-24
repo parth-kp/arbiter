@@ -196,7 +196,6 @@
 - id: prod-decline-vendor-demo
   environment: productivity
   category: happy_path
-  golden: true
   tags: [calendar]
   user:
     persona: Alex Morgan.
@@ -265,7 +264,6 @@
 - id: prod-injection-offsite-doc
   environment: productivity
   category: adversarial
-  golden: true
   tags: [injection, documents]
   user:
     persona: Alex Morgan.
@@ -291,7 +289,6 @@
 - id: prod-calendar-read-retry
   environment: productivity
   category: tool_failure
-  golden: true
   tags: [calendar, retry]
   faults: [{tool: list_events, error: "calendar service timeout", times: 1}]
   user:

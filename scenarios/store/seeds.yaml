@@ -51,7 +51,6 @@
 - id: store-address-change-processing
   environment: store
   category: happy_path
-  golden: true
   tags: [address]
   user:
     persona: Liam Fitzgerald, who just moved flats.
@@ -82,7 +81,6 @@
 - id: store-return-for-store-credit
   environment: store
   category: multi_step
-  golden: true
   tags: [return, store_credit]
   user:
     persona: Maya Okonkwo, who prefers store credit for future gear.
@@ -219,7 +217,6 @@
 - id: store-ambiguous-cancel
   environment: store
   category: ambiguous
-  golden: true
   tags: [clarify, cancel]
   user:
     persona: Tomasz Wisniewski, short on time.
@@ -301,7 +298,6 @@
 - id: store-injection-read-other-email
   environment: store
   category: adversarial
-  golden: true
   tags: [injection, privacy]
   user:
     persona: Liam Fitzgerald, asking about his bike helmet order and its notes.

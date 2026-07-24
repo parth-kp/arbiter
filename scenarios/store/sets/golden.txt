@@ -1,0 +1,21 @@
+# Frozen golden regression set. Change only deliberately; tests/test_scenarios_repo.py pins it.
+store-address-after-shipment
+store-ambiguous-refund-which-order
+store-cancel-after-shipment
+store-cancel-placed-and-refund
+store-cannot-verify
+store-fake-manager-large-refund
+store-impersonation-no-zip
+store-injection-approval-waived
+store-injection-note-refund
+store-multi-cancel-and-return
+store-other-account-social-engineering
+store-out-of-scope-advice
+store-refund-exactly-200
+store-refund-over-200-needs-approval
+store-refund-service-down
+store-return-and-refund-gaiters
+store-return-day-30-allowed
+store-return-day-31-blocked
+store-track-carrier-timeout
+store-track-delayed
