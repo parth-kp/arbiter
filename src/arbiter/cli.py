@@ -15,7 +15,7 @@ env_app = typer.Typer(help="Inspect environments.", no_args_is_help=True)
 scen_app = typer.Typer(help="Work with scenarios.", no_args_is_help=True)
 app.add_typer(env_app, name="env")
 app.add_typer(scen_app, name="scenarios")
-console = Console()
+console = Console(width=max(140, Console().width))
 
 
 def load_dotenv(path: str = ".env") -> None:

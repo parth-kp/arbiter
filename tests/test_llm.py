@@ -172,3 +172,23 @@ async def test_failed_call_releases_its_reservation():
 async def test_offline_client_refuses_live_calls():
     with pytest.raises(RuntimeError, match="offline"):
         await LLMClient(None).complete(req(), trial_key="a", purpose="agent")
+
+
+@respx.mock
+async def test_refused_provider_is_skipped_for_that_model_afterwards():
+    a = respx.post("https://a.test/v1/chat/completions").respond(403, json={"error": {"message": "free tier"}})
+    respx.post("https://b.test/v1/chat/completions").respond(200, json=ok_body())
+    chain = ProviderChain([A, B], backoff_s=0)
+    await chain.complete(req())
+    await chain.complete(req())
+    assert a.call_count == 1
+
+
+def test_anthropic_requests_get_cache_breakpoints_others_do_not():
+    r = ChatRequest(model="anthropic/claude-haiku-5.5",
+                    messages=[Message(role="system", content="sys"), Message(role="user", content="hi")])
+    body = r.to_openai()
+    assert body["messages"][0]["content"][0]["cache_control"] == {"type": "ephemeral"}
+    assert body["messages"][1]["content"][0]["text"] == "hi"
+    other = r.model_copy(update={"model": "openai/gpt-5-nano"}).to_openai()
+    assert other["messages"][0]["content"] == "sys"

@@ -63,11 +63,15 @@ class ChatRequest(BaseModel):
     temperature: float = 0.0
     max_tokens: int = 1024
     response_format: dict[str, Any] | None = None
+    prompt_cache: bool = True
 
     def to_openai(self) -> dict[str, Any]:
+        messages = [m.to_openai() for m in self.messages]
+        if self.prompt_cache and self.model.startswith("anthropic/"):
+            _mark_cache_breakpoints(messages)
         body: dict[str, Any] = {
             "model": self.model,
-            "messages": [m.to_openai() for m in self.messages],
+            "messages": messages,
             "temperature": self.temperature,
             "max_tokens": self.max_tokens,
         }
@@ -82,6 +86,22 @@ class ChatRequest(BaseModel):
         # excluded so a cassette recorded via one gateway replays regardless of which served it.
         payload = json.dumps({"req": self.to_openai(), "trial": trial_key}, sort_keys=True)
         return hashlib.sha256(payload.encode()).hexdigest()
+
+
+def _mark_cache_breakpoints(messages: list[dict[str, Any]]) -> None:
+    """Anthropic prompt caching via OpenRouter: mark the system prompt and the newest message as cache breakpoints.
+
+    An agent loop resends an ever-growing prefix on every step, so caching it cuts input cost sharply. Anthropic
+    allows at most four breakpoints; we use two.
+    """
+    targets = []
+    if messages and messages[0]["role"] == "system":
+        targets.append(messages[0])
+    if len(messages) > 1 and messages[-1]["role"] in ("user", "tool"):
+        targets.append(messages[-1])
+    for m in targets:
+        if isinstance(m.get("content"), str) and m["content"]:
+            m["content"] = [{"type": "text", "text": m["content"], "cache_control": {"type": "ephemeral"}}]
 
 
 class Usage(BaseModel):

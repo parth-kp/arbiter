@@ -65,6 +65,9 @@ class ProviderChain:
         self.max_retries = max_retries
         self.backoff_s = backoff_s
         self._client = httpx.AsyncClient(timeout=timeout_s, transport=transport)
+        # A gateway that refused a model for access reasons (e.g. free tier) will keep refusing it; skipping it
+        # avoids paying a wasted round trip on every call of a run.
+        self._refused: set[tuple[str, str]] = set()
 
     async def aclose(self) -> None:
         await self._client.aclose()
@@ -75,10 +78,14 @@ class ProviderChain:
             if not provider.available:
                 errors.append(f"{provider.name}: no API key")
                 continue
+            if (provider.name, req.model) in self._refused:
+                continue
             try:
                 return await self._with_retries(provider, req)
             except ProviderError as exc:
                 errors.append(str(exc))
+                if exc.status in FALLBACK_ONLY:
+                    self._refused.add((provider.name, req.model))
                 if not exc.fallback:
                     raise
         raise AllProvidersFailed("; ".join(errors) or "no providers configured")
