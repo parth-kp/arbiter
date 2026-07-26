@@ -9,3 +9,8 @@ Total refunds on an order, including refunds awaiting approval, can never exceed
 
 # Starting a return
 A return must be started before a refund is issued for returned goods. The customer must be verified and the order must be on their own account.
+
+Once the return is started, issue the refund for the returned items straight away (subject to the approval limit below). The customer does not need to ship the items first.
+
+# Return labels
+A prepaid return label and the return address are emailed to the customer automatically when a return is started. Support does not need to send them.
