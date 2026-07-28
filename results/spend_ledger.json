@@ -1,14 +1,44 @@
 {
   "cap_usd": 5.0,
   "runs": {
+    "20261109-092759-pilot-cheap-319a": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.0075948
+      },
+      "by_provider": {
+        "openrouter": 25
+      },
+      "calls": 25,
+      "cost_usd": 0.0075948,
+      "started": "2026-11-09T09:28:02+00:00",
+      "updated": "2026-11-09T09:28:27+00:00"
+    },
     "build-smoke-2026-11-09": {
-      "by_model": {"anthropic/claude-haiku-5.5": 3.2e-06, "openai/gpt-5-nano": 1.0e-05},
-      "by_provider": {"openrouter": 1, "vercel": 1},
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 3.2e-06,
+        "openai/gpt-5-nano": 1e-05
+      },
+      "by_provider": {
+        "openrouter": 1,
+        "vercel": 1
+      },
       "calls": 2,
       "cost_usd": 1.32e-05,
       "note": "Manual curl smoke calls while choosing models; Vercel nano cost is an upper-bound estimate.",
       "started": "2026-11-09T00:00:00+00:00"
+    },
+    "cache-probe-2026-11-09": {
+      "by_model": {
+        "anthropic/claude-sonnet-5.5": 0.013943
+      },
+      "by_provider": {
+        "openrouter": 2
+      },
+      "calls": 2,
+      "cost_usd": 0.013943,
+      "started": "2026-11-09T09:29:24+00:00",
+      "updated": "2026-11-09T09:29:25+00:00"
     }
   },
-  "total_usd": 1.32e-05
+  "total_usd": 0.021551
 }
