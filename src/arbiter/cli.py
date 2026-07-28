@@ -267,5 +267,92 @@ def scenarios_generate(
         console.print(f"  [yellow]rejected[/yellow] {r}")
 
 
+@app.command()
+def dashboard(host: str = "127.0.0.1", port: int = 8000, db: str | None = None) -> None:
+    """Serve the dashboard (API + built web app) and import committed runs."""
+    import uvicorn
+
+    from arbiter.server import create_app
+
+    uvicorn.run(create_app(db=db), host=host, port=port)
+
+
+label_app = typer.Typer(help="Human labelling for judge calibration.", no_args_is_help=True)
+app.add_typer(label_app, name="label")
+
+
+@label_app.command("sample")
+def label_sample(runs: list[str], n: int = 30, out: str = "labels/items.json", seed: int = 7) -> None:
+    """Sample transcripts (half failures, half successes) from runs for human labelling."""
+    from arbiter.calibration import sample_items
+    from arbiter.store import resolve_run
+
+    items = sample_items([resolve_run(r) for r in runs], n, seed=seed)
+    Path(out).parent.mkdir(parents=True, exist_ok=True)
+    Path(out).write_text(json.dumps(items, indent=1))
+    console.print(f"wrote {len(items)} items to {out}. Label them at http://127.0.0.1:8000/label (arbiter dashboard)")
+
+
+@label_app.command("status")
+def label_status(items: str = "labels/items.json", labels: str = "labels/human_labels.json",
+                 rubric: str = "assistant_quality") -> None:
+    """How many items are fully labelled."""
+    from arbiter.calibration import load_human_labels, load_items
+    from arbiter.judge import load_rubric
+
+    crit = [c.id for c in load_rubric(rubric).criteria]
+    its = load_items(Path(items))
+    hl = load_human_labels(Path(labels))
+    done = sum(1 for i in its if all(c in hl.get(i["item_id"], {}) for c in crit))
+    console.print(f"{done}/{len(its)} items fully labelled ({len(crit)} criteria each)")
+
+
+@app.command()
+def calibrate(
+    rubric: str = "assistant_quality",
+    model: str = "anthropic/claude-sonnet-5.5",
+    items: str = "labels/items.json",
+    labels: str = "labels/human_labels.json",
+    out_dir: str = "results/calibration",
+    mode: str = "cache",
+) -> None:
+    """Run the judge on the labelled items and report agreement and Cohen's kappa per criterion."""
+    from arbiter.calibration import agreement_report, load_human_labels, load_items, run_judge_on_items
+    from arbiter.judge import Judge, load_rubric
+    from arbiter.llm import Cassette, CassetteMode, LLMClient, ProviderChain, SpendLedger
+
+    load_dotenv()
+    rub = load_rubric(rubric)
+    its = load_items(Path(items))
+    human = load_human_labels(Path(labels))
+    its = [i for i in its if i["item_id"] in human]
+    if not its:
+        raise typer.BadParameter("no labelled items yet")
+    cmode = CassetteMode(mode)
+    chain = None if cmode == CassetteMode.REPLAY else ProviderChain()
+    llm = LLMClient(chain, cassette=Cassette(f"cassettes/calibration/{rub.name}-{rub.version}.json", cmode),
+                    ledger=SpendLedger("results/spend_ledger.json", 5.0),
+                    run_id=f"calibration-{rub.name}-{rub.version}")
+    judge_out = asyncio.run(run_judge_on_items(Judge(llm, model), rub, its))
+    llm.close()
+    crit = [c.id for c in rub.criteria]
+    report = {"rubric": rub.name, "version": rub.version, "judge_model": model, "n_items": len(its),
+              "criteria": agreement_report(human, judge_out, crit)}
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
+    Path(out_dir, f"{rub.name}-{rub.version}.json").write_text(json.dumps(report, indent=1))
+    Path(out_dir, f"{rub.name}-{rub.version}-judge-verdicts.json").write_text(json.dumps(judge_out, indent=1))
+    t = Table(title=f"Judge calibration: {rub.name} {rub.version} ({model}, n={len(its)})")
+    for c in ("criterion", "n", "agreement", "kappa", "kappa 95% CI", "human pass", "judge pass"):
+        t.add_column(c)
+    for c, m in report["criteria"].items():
+        if not m.get("n"):
+            continue
+        k = m["kappa"]
+        t.add_row(c, str(m["n"]), f"{m['agreement']:.0%}", "-" if k is None else f"{k:.2f}",
+                  f"[{m['kappa_ci95'][0]:.2f}, {m['kappa_ci95'][1]:.2f}]", f"{m['human_pass_rate']:.0%}",
+                  f"{m['judge_pass_rate']:.0%}")
+    console.print(t)
+
+
 if __name__ == "__main__":
     app()
