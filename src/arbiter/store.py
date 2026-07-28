@@ -58,6 +58,7 @@ trials = Table(
     Column("category", String, nullable=False),
     Column("success", Boolean, nullable=False),
     Column("status", String, nullable=False),
+    Column("trace_id", String, index=True),
     Column("data", JSON, nullable=False),
 )
 
@@ -115,7 +116,7 @@ class Store:
             if run.trials:
                 cx.execute(insert(trials), [{
                     "run_id": run.id, "scenario_id": t.scenario_id, "trial_index": t.trial_index,
-                    "category": t.category, "success": t.success, "status": t.status,
+                    "category": t.category, "success": t.success, "status": t.status, "trace_id": t.trace_id,
                     "data": t.model_dump(mode="json"),
                 } for t in run.trials])
             pending = [(t, a) for t in run.trials for a in t.approvals]
@@ -131,6 +132,11 @@ class Store:
             rows = cx.execute(select(runs).order_by(runs.c.created_at.desc())).mappings().all()
         return [dict(r) for r in rows]
 
+    def list_runs_by_id(self, run_id: str) -> dict[str, Any]:
+        with self.engine.connect() as cx:
+            row = cx.execute(select(runs).where(runs.c.id == run_id)).mappings().first()
+        return dict(row) if row else {}
+
     def get_run(self, run_id: str) -> RunResult | None:
         with self.engine.connect() as cx:
             row = cx.execute(select(runs).where(runs.c.id == run_id)).mappings().first()
@@ -142,6 +148,17 @@ class Store:
                                     "scenario_set", "summary", "spend", "git_sha", "aborted")}
         data["trials"] = [TrialResult.model_validate(r[0]) for r in trows]
         return RunResult.model_validate(data)
+
+    def trial_by_trace(self, trace_id: str) -> dict[str, Any] | None:
+        with self.engine.connect() as cx:
+            row = cx.execute(select(trials.c.run_id, trials.c.data).where(trials.c.trace_id == trace_id)).first()
+        return {"run_id": row[0], "trial": row[1]} if row else None
+
+    def scenario_trials(self, run_id: str, scenario_id: str) -> list[dict[str, Any]]:
+        with self.engine.connect() as cx:
+            q = select(trials.c.data).where(trials.c.run_id == run_id, trials.c.scenario_id == scenario_id)
+            rows = cx.execute(q.order_by(trials.c.trial_index)).all()
+        return [r[0] for r in rows]
 
     def approvals(self, status: str | None = None) -> list[dict[str, Any]]:
         q = select(approvals).order_by(approvals.c.pk)
