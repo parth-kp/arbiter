@@ -1,0 +1,65 @@
+name: Arbiter eval gate
+description: >-
+  Run an Arbiter evaluation (replay mode by default, so no API key is needed) and fail the job when success drops
+  or policy violations rise significantly against a committed baseline run.
+branding:
+  icon: check-circle
+  color: blue
+inputs:
+  environment:
+    description: Environment name (e.g. store) or module:Class
+    required: true
+  config:
+    description: Run config YAML
+    required: true
+  baseline:
+    description: Committed baseline run JSON to gate against
+    required: true
+  set:
+    description: Scenario set (golden, all, category:X, tag:X or a set file)
+    default: golden
+  mode:
+    description: Cassette mode. Keep "replay" in CI unless you want live (paid) calls.
+    default: replay
+  package:
+    description: What to pip-install. Use "." inside the Arbiter repo, or e.g. "arbiter-eval==0.1.0" elsewhere.
+    default: arbiter-eval
+  python-version:
+    default: "3.12"
+  max-success-drop:
+    description: Largest tolerated drop in success rate (also needs p < alpha to fail)
+    default: "0.05"
+  alpha:
+    default: "0.05"
+outputs:
+  run-path:
+    description: Path to the JSON results of the candidate run
+    value: ${{ steps.run.outputs.run-path }}
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@v6
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install Arbiter
+      shell: bash
+      run: uv pip install --system "${{ inputs.package }}"
+    - name: Run evaluation
+      id: run
+      shell: bash
+      run: |
+        out="$RUNNER_TEMP/arbiter-runs"
+        arbiter run --env "${{ inputs.environment }}" --config "${{ inputs.config }}" --set "${{ inputs.set }}" \
+          --mode "${{ inputs.mode }}" --no-db --no-judge --out "$out" | tee "$RUNNER_TEMP/arbiter-run.txt"
+        echo "run-path=$(ls -t "$out"/*.json | head -1)" >> "$GITHUB_OUTPUT"
+    - name: Gate against baseline
+      shell: bash
+      run: |
+        set -o pipefail
+        {
+          echo "### Arbiter gate: ${{ inputs.environment }}"
+          echo '```'
+          arbiter gate "${{ steps.run.outputs.run-path }}" --baseline "${{ inputs.baseline }}" \
+            --alpha "${{ inputs.alpha }}" --max-success-drop "${{ inputs.max-success-drop }}"
+          echo '```'
+        } 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
