@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Tests (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv sync --locked
+      - run: uv run ruff check src tests examples
+      - name: Test suite (no API keys, no network)
+        run: uv run pytest -q
+        env:
+          VERCEL_API_KEY: ""
+          OPENROUTER_API_KEY: ""
+
+  dashboard:
+    name: Dashboard build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: dashboard/web/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  eval-gate:
+    name: Eval gate (${{ matrix.environment }}, replay)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [store, productivity]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./action
+        with:
+          environment: ${{ matrix.environment }}
+          config: configs/gate.yaml
+          baseline: baselines/${{ matrix.environment }}.json
+          package: "."
