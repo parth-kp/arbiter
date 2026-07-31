@@ -1,0 +1,36 @@
+# docker compose up --build  -> replays the golden set for both environments and serves the dashboard on :8000.
+# docker compose --profile postgres up --build  -> same, with results in PostgreSQL instead of SQLite.
+services:
+  arbiter:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      ARBITER_DATABASE_URL: ${ARBITER_DATABASE_URL:-sqlite:////data/arbiter.db}
+    volumes: [arbiter-data:/data]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/runs')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: [postgres]
+    environment:
+      POSTGRES_USER: arbiter
+      POSTGRES_PASSWORD: arbiter
+      POSTGRES_DB: arbiter
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arbiter"]
+      interval: 5s
+      retries: 10
+
+  arbiter-pg:
+    build: .
+    profiles: [postgres]
+    ports: ["8001:8000"]
+    environment:
+      ARBITER_DATABASE_URL: postgresql+psycopg://arbiter:arbiter@postgres:5432/arbiter
+    depends_on:
+      postgres: {condition: service_healthy}

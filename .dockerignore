@@ -1,0 +1,10 @@
+.venv
+.git
+.env
+.env.*
+!.env.example
+**/node_modules
+dashboard/web/dist
+.arbiter
+logs
+__pycache__
