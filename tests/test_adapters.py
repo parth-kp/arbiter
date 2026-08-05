@@ -106,3 +106,20 @@ def test_langgraph_agent_runs_through_arbiter_and_replays_offline(tmp_path):
 
     rep = run_with(cfg, LLMClient(None, cassette=Cassette(path, CassetteMode.REPLAY)))
     assert rep.trials[0].success and all(c.from_cassette for c in rep.trials[0].calls)
+
+
+def test_router_classifies_once_then_uses_the_chosen_model():
+    from arbiter.llm.types import Message as M
+
+    def policy(req):
+        if req.max_tokens == 5:
+            return M(role="assistant", content="COMPLEX")
+        return scripted_agent(tool_call("verify_member", member_id="M1", card_pin="4821"),
+                              tool_call("checkout_book", book_id="B1"), say("Done."))(req)
+
+    chain = FakeChain(policy)
+    res = run_with({"type": "router", "model": "unused", "cheap_model": "cheap", "strong_model": "strong"},
+                   LLMClient(chain, ledger=SpendLedger(None, 1)))
+    assert res.trials[0].success
+    models = [r.model for r in chain.requests]
+    assert models[0] == "cheap" and set(models[1:]) == {"strong"}

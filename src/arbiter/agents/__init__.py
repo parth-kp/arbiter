@@ -30,11 +30,18 @@ def _langgraph(config: AgentConfig, deps: AgentDeps) -> Agent:
     return LangGraphAgent(config, deps)
 
 
+def _router(config: AgentConfig, deps: AgentDeps) -> Agent:
+    from arbiter.agents.router import RouterAgent
+
+    return RouterAgent(config, deps)
+
+
 AGENT_TYPES: dict[str, Callable[[AgentConfig, AgentDeps], Agent]] = {
     "reference": _reference,
     "openai": _openai,
     "http": _http,
     "langgraph": _langgraph,
+    "router": _router,
 }
 
 
