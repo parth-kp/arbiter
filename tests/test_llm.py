@@ -192,3 +192,9 @@ def test_anthropic_requests_get_cache_breakpoints_others_do_not():
     assert body["messages"][1]["content"][0]["text"] == "hi"
     other = r.model_copy(update={"model": "openai/gpt-5-nano"}).to_openai()
     assert other["messages"][0]["content"] == "sys"
+
+
+def test_empty_messages_are_never_sent_as_empty_text():
+    body = ChatRequest(model="m", messages=[Message(role="user", content="hi"), Message(role="assistant", content=""),
+                                            Message(role="user", content="  ")]).to_openai()
+    assert body["messages"][1]["content"] == "(empty message)" and body["messages"][2]["content"] == "(empty message)"

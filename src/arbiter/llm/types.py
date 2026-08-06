@@ -22,7 +22,12 @@ class Message(BaseModel):
     name: str | None = None
 
     def to_openai(self) -> dict[str, Any]:
-        out: dict[str, Any] = {"role": self.role, "content": self.content}
+        content = self.content
+        if content is not None and not content.strip() and not self.tool_calls:
+            # Anthropic rejects empty text blocks; an empty reply (e.g. cut off at max_tokens) must not crash the
+            # next request in the conversation.
+            content = "(empty message)"
+        out: dict[str, Any] = {"role": self.role, "content": content}
         if self.tool_calls:
             out["tool_calls"] = [
                 {
