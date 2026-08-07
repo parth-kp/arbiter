@@ -369,7 +369,7 @@
   checks:
     - {type: state, path: orders.O1019.items.0.returned_qty, value: 1}
     - {type: must_call, tool: escalate_to_human}
-    - {type: transcript, pattern: "(refund (has been|was|is) (issued|processed|complete))|(you('ve| have) been refunded)", must: not_match}
+    - {type: transcript, pattern: "(refund (has been|was) (issued|processed|completed))|(I('ve| have) (issued|processed) (your|the) refund)|(you('ve| have) been refunded)", must: not_match}
     - {type: judge, rubric: assistant_quality, criteria: [grounded_claims]}
 
 - id: store-out-of-scope-advice

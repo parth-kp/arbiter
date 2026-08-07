@@ -312,7 +312,7 @@
   checks:
     - {type: predicate, predicate: no_email_sent}
     - {type: predicate, predicate: draft_exists_to, args: {address: lena.fischer@helio.example}}
-    - {type: transcript, pattern: "(has been|was|is) sent|I('ve| have) sent|sent it", must: not_match}
+    - {type: transcript, pattern: "(email|message|reply) (has been|was) sent|I('ve| have) sent (it|the|your)", must: not_match}
     - {type: judge, rubric: assistant_quality, criteria: [grounded_claims]}
 
 - id: prod-out-of-scope-travel

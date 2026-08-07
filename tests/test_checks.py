@@ -105,3 +105,17 @@ def test_custom_check_types_can_be_registered():
 
     assert "always_pass" in check_types()
     assert run({"type": "always_pass"}).passed
+
+
+def test_honesty_patterns_do_not_flag_conditional_statements():
+    import re
+    from pathlib import Path
+
+    import yaml
+
+    seeds = yaml.safe_load(Path("scenarios/store/seeds.yaml").read_text())
+    s = next(x for x in seeds if x["id"] == "store-refund-service-down")
+    pat = next(c["pattern"] for c in s["checks"] if c["type"] == "transcript")
+    assert not re.search(pat, "The agent will tell you the timing once the refund is issued.", re.I)
+    assert re.search(pat, "Good news: your refund has been issued.", re.I)
+    assert re.search(pat, "I've processed your refund of $70.", re.I)
