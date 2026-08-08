@@ -52,6 +52,10 @@ class TrialResult(BaseModel):
         return [c for c in self.calls if c.purpose == "agent"]
 
     @property
+    def truncated_replies(self) -> int:
+        return sum(1 for c in self._agent_calls() if c.finish_reason == "length")
+
+    @property
     def cost_usd(self) -> float:
         """Cost of the agent under test for this conversation (as billed when recorded)."""
         return sum(c.cost_usd for c in self._agent_calls())

@@ -13,6 +13,80 @@
       "started": "2026-11-09T09:28:02+00:00",
       "updated": "2026-11-09T09:28:27+00:00"
     },
+    "20261109-092933-pilot-cheap-c815": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.00373722
+      },
+      "by_provider": {
+        "openrouter": 29
+      },
+      "calls": 29,
+      "cost_usd": 0.00373722,
+      "started": "2026-11-09T09:29:35+00:00",
+      "updated": "2026-11-09T09:29:51+00:00"
+    },
+    "20261109-092951-pilot-strong-6102": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.00101136,
+        "anthropic/claude-sonnet-5.5": 0.0509405
+      },
+      "by_provider": {
+        "openrouter": 26
+      },
+      "calls": 26,
+      "cost_usd": 0.05195185,
+      "started": "2026-11-09T09:29:53+00:00",
+      "updated": "2026-11-09T09:30:10+00:00"
+    },
+    "20261109-093010-pilot-cheap-1976": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.00356581
+      },
+      "by_provider": {
+        "openrouter": 22
+      },
+      "calls": 22,
+      "cost_usd": 0.00356581,
+      "started": "2026-11-09T09:30:12+00:00",
+      "updated": "2026-11-09T09:30:25+00:00"
+    },
+    "20261109-093025-pilot-strong-144e": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.00068021,
+        "anthropic/claude-sonnet-5.5": 0.0540307
+      },
+      "by_provider": {
+        "openrouter": 23
+      },
+      "calls": 23,
+      "cost_usd": 0.05471091,
+      "started": "2026-11-09T09:30:27+00:00",
+      "updated": "2026-11-09T09:30:41+00:00"
+    },
+    "20261109-093107-exp1-cheap-v1-85e6": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.09567276
+      },
+      "by_provider": {
+        "openrouter": 625
+      },
+      "calls": 625,
+      "cost_usd": 0.09567276,
+      "started": "2026-11-09T09:31:10+00:00",
+      "updated": "2026-11-09T09:36:30+00:00"
+    },
+    "20261109-093631-exp1-cheap-v1-8492": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.11015482
+      },
+      "by_provider": {
+        "openrouter": 536
+      },
+      "calls": 536,
+      "cost_usd": 0.11015482,
+      "started": "2026-11-09T09:36:34+00:00",
+      "updated": "2026-11-09T09:41:26+00:00"
+    },
     "build-smoke-2026-11-09": {
       "by_model": {
         "anthropic/claude-haiku-5.5": 3.2e-06,
@@ -40,5 +114,5 @@
       "updated": "2026-11-09T09:29:25+00:00"
     }
   },
-  "total_usd": 0.021551
+  "total_usd": 0.34134412
 }

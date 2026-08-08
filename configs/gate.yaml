@@ -6,7 +6,7 @@ agent:
   prompt_version: v3
   tool_descriptions: v3
   injection_defense: true
-  max_tokens: 800
+  max_tokens: 2048
 user:
   model: anthropic/claude-haiku-5.5
 judge:

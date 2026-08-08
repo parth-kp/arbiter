@@ -138,3 +138,4 @@ class CallRecord(BaseModel):
     cost_usd: float
     latency_ms: float
     from_cassette: bool
+    finish_reason: str | None = None

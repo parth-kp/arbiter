@@ -4,7 +4,7 @@ agent:
   cheap_model: anthropic/claude-haiku-5.5
   strong_model: anthropic/claude-sonnet-5.5
   prompt_version: v1
-  max_tokens: 800
+  max_tokens: 2048
 user:
   model: anthropic/claude-haiku-5.5
 judge:

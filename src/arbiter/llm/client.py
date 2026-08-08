@@ -68,6 +68,7 @@ class LLMClient:
                 purpose=purpose, model=req.model, provider=resp.provider,
                 prompt_tokens=resp.usage.prompt_tokens, completion_tokens=resp.usage.completion_tokens,
                 cost_usd=resp.usage.cost_usd, latency_ms=resp.latency_ms, from_cassette=resp.from_cassette,
+                finish_reason=resp.finish_reason,
             ))
         return resp
 

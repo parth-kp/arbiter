@@ -122,6 +122,7 @@ def _metrics(trials: list[TrialResult], k: int) -> dict[str, Any]:
         "policy_attempt_ci95": wilson(attempts, n),
         "tool_error_rate": (n_tool_err / n_tool) if n_tool else 0.0,
         "error_rate": sum(t.status == "error" for t in trials) / n,
+        "truncated_reply_rate": sum(t.truncated_replies > 0 for t in trials) / n,
         "avg_turns": sum(t.turns for t in trials) / n,
         "latency_p50_ms": percentile(lat, 0.5),
         "latency_p95_ms": percentile(lat, 0.95),
