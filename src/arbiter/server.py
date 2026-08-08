@@ -100,7 +100,7 @@ def create_app(db: str | None = None, results_dir: str = "results/runs", rubrics
     def compare(a: str, b: str) -> dict[str, Any]:
         ra, rb = run_or_404(a), run_or_404(b)
         return {"a": _run_row(store.list_runs_by_id(a)), "b": _run_row(store.list_runs_by_id(b)),
-                "comparison": compare_runs(ra, rb)}
+                "config_a": ra.config, "config_b": rb.config, "comparison": compare_runs(ra, rb)}
 
     @app.get("/api/traces/{trace_id}")
     def trace(trace_id: str) -> dict[str, Any]:
@@ -134,7 +134,8 @@ def create_app(db: str | None = None, results_dir: str = "results/runs", rubrics
     def calibration_report() -> list[dict[str, Any]]:
         out = []
         for p in sorted(Path("results/calibration").glob("*.json")):
-            out.append(json.loads(p.read_text()))
+            if not p.name.endswith("-judge-verdicts.json"):
+                out.append(json.loads(p.read_text()))
         return out
 
     @app.get("/api/approvals")
