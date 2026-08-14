@@ -217,6 +217,8 @@ def resolve_run(ref: str, results_dir: str | Path = "results/runs") -> RunResult
 def import_runs(store: Store, results_dir: str | Path = "results/runs") -> int:
     n = 0
     for path in sorted(Path(results_dir).rglob("*.json")):
+        if "superseded" in path.parts:
+            continue
         store.save_run(read_run_json(path), source_path=str(path))
         n += 1
     return n
