@@ -106,7 +106,7 @@ class Judge:
         resp = await self.llm.complete(
             ChatRequest(model=self.model, messages=[Message(role="system", content=SYSTEM),
                                                     Message(role="user", content=user)],
-                        temperature=0.0, max_tokens=900),
+                        temperature=0.0, max_tokens=2500, reasoning={"max_tokens": 1024}),
             trial_key=f"{trial_key}/judge:{rubric.name}:{rubric.version}", purpose="judge", on_call=on_call,
         )
         verdicts = parse_verdicts(resp.message.content or "")

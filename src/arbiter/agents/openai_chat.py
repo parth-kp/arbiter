@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from arbiter.core.agent import Agent, AgentConfig, AgentDeps, TurnContext
+from arbiter.core.agent import Agent, AgentConfig, AgentDeps, TurnContext, reasoning_param
 from arbiter.llm.client import LLMClient
 from arbiter.llm.providers import Provider, ProviderChain
 from arbiter.llm.types import ChatRequest, Message
@@ -47,7 +47,8 @@ class OpenAIChatAgent(Agent):
         for step in range(self.config.max_tool_steps):
             resp = await self.llm.complete(
                 ChatRequest(model=self.config.model, messages=self.history, tools=ctx.tools or None,
-                            temperature=self.config.temperature, max_tokens=self.config.max_tokens),
+                            temperature=self.config.temperature, max_tokens=self.config.max_tokens,
+                            reasoning=reasoning_param(self.config.reasoning_max_tokens)),
                 trial_key=f"{ctx.trial_key}/t{ctx.turn}s{step}", purpose="agent", on_call=ctx.on_call,
             )
             msg = resp.message

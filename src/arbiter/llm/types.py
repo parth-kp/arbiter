@@ -69,6 +69,7 @@ class ChatRequest(BaseModel):
     max_tokens: int = 1024
     response_format: dict[str, Any] | None = None
     prompt_cache: bool = True
+    reasoning: dict[str, Any] | None = None
 
     def to_openai(self) -> dict[str, Any]:
         messages = [m.to_openai() for m in self.messages]
@@ -84,6 +85,8 @@ class ChatRequest(BaseModel):
             body["tools"] = [t.to_openai() for t in self.tools]
         if self.response_format:
             body["response_format"] = self.response_format
+        if self.reasoning is not None:
+            body["reasoning"] = self.reasoning
         return body
 
     def cache_key(self, trial_key: str) -> str:

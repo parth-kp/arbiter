@@ -23,13 +23,22 @@ class AgentConfig(BaseModel):
     prompt_version: str = "v1"
     tool_descriptions: str = "default"
     temperature: float = 0.0
-    max_tokens: int = 1024
+    max_tokens: int = 4096
+    # Hidden reasoning tokens count against max_tokens on reasoning models; an explicit budget keeps the visible
+    # reply from being starved. 0 disables reasoning, None leaves the provider default.
+    reasoning_max_tokens: int | None = 1024
     max_tool_steps: int = 12
     retrieval: bool = True
     injection_defense: bool = False
     base_url: str | None = None
     endpoint: str | None = None
     system_prompt: str | None = None
+
+
+def reasoning_param(budget: int | None) -> dict | None:
+    if budget is None:
+        return None
+    return {"enabled": False} if budget == 0 else {"max_tokens": budget}
 
 
 class TurnContext:

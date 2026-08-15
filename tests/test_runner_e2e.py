@@ -115,3 +115,34 @@ def test_turn_limit_and_tool_step_limit():
     result = run(looping, trials=1)
     t = result.trials[0]
     assert len(t.tool_calls) == 12 and t.events[-1].content.startswith("I'm sorry")
+
+
+def test_closing_user_message_is_delivered_before_ending():
+    from arbiter.simuser import UserSimulator, UserTurn
+
+    class ClosesWithInstruction(UserSimulator):
+        async def next(self, spec, history, *, trial_key, on_call):
+            if not history:
+                return UserTurn(message="I'm M1, PIN 4821.")
+            return UserTurn(message="Yes, check out B1 please. Thanks, bye!", status="done")
+
+    policy = scripted_agent(say("Which book?"), tool_call("verify_member", member_id="M1", card_pin="4821"),
+                            tool_call("checkout_book", book_id="B1"), say("Done."))
+    import asyncio
+
+    cfg = RunConfig(name="t", trials=1, agent={"type": "openai", "model": "m"}, judge={"enabled": False})
+    runner = Runner(cfg, LibraryEnvironment, llm=LLMClient(FakeChain(policy)), user=ClosesWithInstruction())
+    res = asyncio.run(runner.run(ScenarioSet(name="t", scenarios=[Scenario.model_validate(SCENARIO)])))
+    t = res.trials[0]
+    assert t.success and t.termination == "done" and t.turns == 2
+
+
+def test_agent_sends_explicit_reasoning_budget():
+    chain = FakeChain(GOOD)
+    cfg = RunConfig(name="t", trials=1, agent={"type": "openai", "model": "m", "reasoning_max_tokens": 0},
+                    judge={"enabled": False})
+    import asyncio
+
+    runner = Runner(cfg, LibraryEnvironment, llm=LLMClient(chain), user=ScriptedUser(["I'm M1 PIN 4821, B1 please"]))
+    asyncio.run(runner.run(ScenarioSet(name="t", scenarios=[Scenario.model_validate(SCENARIO)])))
+    assert chain.requests[0].to_openai()["reasoning"] == {"enabled": False}

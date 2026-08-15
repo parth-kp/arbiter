@@ -4,7 +4,8 @@ agent:
   model: anthropic/claude-sonnet-5.5
   prompt_version: v1
   temperature: 0.0
-  max_tokens: 2048
+  max_tokens: 4096
+  reasoning_max_tokens: 1024
 user:
   model: anthropic/claude-haiku-5.5
   temperature: 0.7

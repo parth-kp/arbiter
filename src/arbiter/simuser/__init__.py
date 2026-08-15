@@ -104,7 +104,8 @@ class LLMUser(UserSimulator):
             msgs.append(Message(role="user", content="(The assistant is waiting for your first message.)"))
         turn_no = sum(1 for m in history if m.role == "user")
         resp = await self.llm.complete(
-            ChatRequest(model=self.model, messages=msgs, temperature=self.temperature, max_tokens=self.max_tokens),
+            ChatRequest(model=self.model, messages=msgs, temperature=self.temperature, max_tokens=self.max_tokens,
+                        reasoning={"enabled": False}),
             trial_key=f"{trial_key}/user{turn_no}", purpose="user", on_call=on_call,
         )
         return parse_user_turn(resp.message.content or "")

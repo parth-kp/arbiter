@@ -28,7 +28,7 @@ class RouterAgent(ReferenceAgent):
     async def respond(self, ctx: TurnContext) -> str:
         if self.route is None:
             resp = await self.llm.complete(
-                ChatRequest(model=self.cheap, max_tokens=5, temperature=0.0, messages=[
+                ChatRequest(model=self.cheap, max_tokens=5, temperature=0.0, reasoning={"enabled": False}, messages=[
                     Message(role="system", content=ROUTER_PROMPT),
                     Message(role="user", content=ctx.messages[-1].content or "")]),
                 trial_key=f"{ctx.trial_key}/route", purpose="agent", on_call=ctx.on_call,
