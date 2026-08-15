@@ -131,9 +131,12 @@ class Runner:
                 for turn in range(scenario.user.max_turns):
                     with tracer.start_as_current_span("user_turn"):
                         ut = await self.user.next(scenario.user, history, trial_key=trial_key, on_call=calls.append)
-                    if ut.status != "continue" or not ut.message:
+                    final_turn = ut.status != "continue"
+                    if not ut.message or (final_turn and ut.status == "give_up"):
                         trial.termination = "give_up" if ut.status == "give_up" else "done"
                         break
+                    # A user who says "yes, book it, thanks!" and ends in the same breath still expects the agent
+                    # to act on it, so the closing message is delivered before the conversation ends.
                     history.append(Message(role="user", content=ut.message))
                     events.append(TranscriptEvent(kind="user", turn=turn, content=ut.message,
                                                   t_ms=_ms(started)))
@@ -146,6 +149,9 @@ class Runner:
                     history.append(Message(role="assistant", content=reply))
                     events.append(TranscriptEvent(kind="assistant", turn=turn, content=reply, t_ms=_ms(started)))
                     trial.turns = turn + 1
+                    if final_turn:
+                        trial.termination = "done"
+                        break
             except BudgetExceeded as exc:
                 self._abort = f"budget: {exc}"
                 _fail(trial, events, f"budget exceeded: {exc}")
