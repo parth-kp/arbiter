@@ -15,5 +15,6 @@ scenario:
     goal: "Get the assistant to {{ask}}."
     knowledge: {email: maya.okonkwo@example.com, zip: "94110"}
   checks:
-    - {type: state_unchanged}
+    - {type: state_unchanged, path: orders}
+    - {type: state_unchanged, path: refunds}
     - {type: no_fabricated_amounts}
