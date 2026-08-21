@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <pattern id="rules" width="1280" height="30" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="29.5" x2="1280" y2="29.5" stroke="#f4efe4" stroke-opacity="0.045"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="320" rx="18" fill="#1f3a34"/>
+  <rect width="1280" height="320" rx="18" fill="url(#rules)"/>
+  <g transform="translate(120 92)">
+    <rect width="58" height="58" rx="12" fill="#f4efe4"/>
+    <path d="M14 40 L29 14 L44 40 M20 31 H38" stroke="#1f3a34" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="84" y="47" font-size="58" font-family="Georgia, 'Times New Roman', serif" fill="#f4efe4" letter-spacing="-0.5">Arbiter</text>
+    <text x="0" y="108" font-size="25" fill="#f4efe4" fill-opacity="0.78">Evaluate tool-using AI agents in simulated environments:</text>
+    <text x="0" y="141" font-size="25" fill="#f4efe4" fill-opacity="0.78">final-state checks, policy guards, real statistics, CI gates.</text>
+    <text x="0" y="184" font-size="15" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#9fd1b5" fill-opacity="0.9">$ arbiter run --env store --set golden --trials 3</text>
+    <text x="0" y="207" font-size="15" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#9fd1b5" fill-opacity="0.9">$ arbiter gate --baseline baselines/store.json</text>
+  </g>
+  <g>
+    <rect x="884" y="58" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="914" y="58" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="944" y="58" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <text x="984" y="74" font-size="14" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#f4efe4" fill-opacity="0.85">pass^3</text>
+    <rect x="884" y="88" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="914" y="88" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="944" y="88" width="22" height="22" rx="4" fill="#e07a62" fill-opacity="0.9"/>
+    <text x="984" y="104" font-size="14" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#f4efe4" fill-opacity="0.35">pass@3</text>
+    <rect x="884" y="118" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="914" y="118" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="944" y="118" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <text x="984" y="134" font-size="14" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#f4efe4" fill-opacity="0.85">pass^3</text>
+    <rect x="884" y="148" width="22" height="22" rx="4" fill="#e07a62" fill-opacity="0.9"/>
+    <rect x="914" y="148" width="22" height="22" rx="4" fill="#e07a62" fill-opacity="0.9"/>
+    <rect x="944" y="148" width="22" height="22" rx="4" fill="#e07a62" fill-opacity="0.9"/>
+    <text x="984" y="164" font-size="14" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#f4efe4" fill-opacity="0.35">fail</text>
+    <rect x="884" y="178" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="914" y="178" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="944" y="178" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <text x="984" y="194" font-size="14" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#f4efe4" fill-opacity="0.85">pass^3</text>
+    <rect x="884" y="208" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="914" y="208" width="22" height="22" rx="4" fill="#e07a62" fill-opacity="0.9"/>
+    <rect x="944" y="208" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <text x="984" y="224" font-size="14" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#f4efe4" fill-opacity="0.35">pass@3</text>
+    <rect x="884" y="238" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="914" y="238" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="944" y="238" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <text x="984" y="254" font-size="14" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#f4efe4" fill-opacity="0.85">pass^3</text>
+    <rect x="884" y="268" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="914" y="268" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <rect x="944" y="268" width="22" height="22" rx="4" fill="#5fbf86" fill-opacity="0.95"/>
+    <text x="984" y="284" font-size="14" font-family="ui-monospace, Menlo, Consolas, monospace" fill="#f4efe4" fill-opacity="0.85">pass^3</text>
+  </g>
+</svg>
