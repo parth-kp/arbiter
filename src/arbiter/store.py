@@ -24,6 +24,7 @@ from sqlalchemy import (
     create_engine,
     delete,
     insert,
+    inspect,
     select,
     update,
 )
@@ -101,7 +102,28 @@ class Store:
         if url.startswith("sqlite:///") and not url.startswith("sqlite:///:memory:"):
             Path(url.removeprefix("sqlite:///")).parent.mkdir(parents=True, exist_ok=True)
         self.engine: Engine = create_engine(url)
+        stale = self._stale_tables()
+        if stale:
+            self.engine.dispose()
+            if not url.startswith("sqlite:///") or url.startswith("sqlite:///:memory:"):
+                raise RuntimeError(f"database schema is out of date ({', '.join(stale)}); it is an index of "
+                                   "results/runs, so drop its arbiter tables and run `arbiter import`")
+            # The database only indexes the committed run JSON, so an outdated local SQLite file is set aside
+            # (not deleted) and rebuilt.
+            path = Path(url.removeprefix("sqlite:///"))
+            path.rename(path.with_suffix(path.suffix + ".bak"))
+            self.engine = create_engine(url)
         metadata.create_all(self.engine)
+
+    def _stale_tables(self) -> list[str]:
+        insp = inspect(self.engine)
+        stale = []
+        for table in metadata.sorted_tables:
+            if insp.has_table(table.name):
+                have = {c["name"] for c in insp.get_columns(table.name)}
+                if not {c.name for c in table.columns} <= have:
+                    stale.append(table.name)
+        return stale
 
     def save_run(self, run: RunResult, source_path: str | None = None) -> None:
         with self.engine.begin() as cx:

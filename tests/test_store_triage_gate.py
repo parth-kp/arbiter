@@ -104,3 +104,14 @@ def test_blocked_attempts_are_not_counted_as_violations():
     t = trial("s", 0, True, attempt=True)
     t.checks.append(CheckResult(name="no_rule_attempts", type="no_rule_attempts", kind="policy", passed=False))
     assert t.policy_attempts == 1 and not t.policy_violation
+
+
+def test_outdated_sqlite_index_is_set_aside_and_rebuilt(tmp_path):
+    import sqlite3
+
+    db = tmp_path / "old.db"
+    with sqlite3.connect(db) as cx:
+        cx.execute("CREATE TABLE trials (pk INTEGER PRIMARY KEY, run_id TEXT)")
+    store = Store(f"sqlite:///{db}")
+    store.save_run(make_run("r1", [1]))
+    assert (tmp_path / "old.db.bak").exists() and store.get_run("r1") is not None
