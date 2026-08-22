@@ -32,3 +32,17 @@ def test_labels_persist_and_validate(tmp_path):
     assert load_human_labels(p) == {"i1": {"a": "fail"}}
     with pytest.raises(ValueError):
         save_human_label("i1", "a", "maybe", p)
+
+
+def test_sample_items_fills_n_with_half_failures_and_distinct_scenarios_first():
+    from test_store_triage_gate import make_run
+
+    from arbiter.calibration import sample_items
+
+    run = make_run("r", [1.0] * 20 + [0.0] * 5)
+    for t in run.trials:
+        t.turns = 1
+    items = sample_items([run], 10)
+    assert len(items) == 10
+    fails = [i for i in items if i["scenario_id"] >= "s20"]
+    assert len(fails) == 5 and len({i["scenario_id"] for i in items}) == 10

@@ -16,24 +16,32 @@ LABELS_DIR = Path("labels")
 
 
 def sample_items(runs: list[RunResult], n: int, *, seed: int = 7) -> list[dict[str, Any]]:
-    """Stratified sample of completed trials: half failures, half successes, spread over scenarios and runs."""
+    """Stratified sample of completed trials: up to half failures, the rest successes, one trial per scenario
+    before any scenario repeats, so the labelled set covers as many situations as possible."""
     pool = [(r, t) for r in runs for t in r.trials if t.status == "completed" and t.turns > 0]
     rng = random.Random(seed)
     rng.shuffle(pool)
     fails = [p for p in pool if not p[1].success]
     wins = [p for p in pool if p[1].success]
-    chosen, seen = [], set()
-    for bucket in (fails, wins, fails + wins):
+    chosen: list = []
+    used: set = set()
+
+    def take(bucket, limit, distinct):
         for r, t in bucket:
-            key = (t.scenario_id, t.trial_index % 2)
-            if len(chosen) >= n or key in seen:
+            if len(chosen) >= limit:
+                return
+            key = (r.id, t.scenario_id, t.trial_index)
+            if key in used or (distinct and any(c[1].scenario_id == t.scenario_id for c in chosen)):
                 continue
-            if bucket is not pool and len([c for c in chosen if (c[1] in fails) == (bucket is fails)]) >= n // 2:
-                break
-            seen.add(key)
+            used.add(key)
             chosen.append((r, t))
+
+    take(fails, n // 2, distinct=True)
+    take(fails, n // 2, distinct=False)
+    take(wins, n, distinct=True)
+    take(wins, n, distinct=False)
     items = []
-    for r, t in chosen[:n]:
+    for r, t in chosen:
         items.append({
             "item_id": f"{r.id}:{t.scenario_id}:{t.trial_index}",
             "run_id": r.id, "environment": r.environment, "scenario_id": t.scenario_id,
