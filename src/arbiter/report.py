@@ -26,10 +26,21 @@ def _usd(x: float | None) -> str:
     return f"${x:.4f}" if x < 0.01 else f"${x:.3f}"
 
 
-def _filter(run: RunResult, categories: list[str] | None) -> RunResult:
-    if not categories:
+def complete_scenarios(runs: list[RunResult]) -> set[str]:
+    """Scenarios whose every trial completed in every run, for comparing arms when one was cut short."""
+    ids = None
+    for run in runs:
+        bad = {t.scenario_id for t in run.trials if t.status != "completed"}
+        have = {t.scenario_id for t in run.trials} - bad
+        ids = have if ids is None else ids & have
+    return ids or set()
+
+
+def _filter(run: RunResult, categories: list[str] | None, scenarios: set[str] | None = None) -> RunResult:
+    if not categories and scenarios is None:
         return run
-    sub = run.model_copy(update={"trials": [t for t in run.trials if t.category in categories]})
+    sub = run.model_copy(update={"trials": [t for t in run.trials if (not categories or t.category in categories)
+                                            and (scenarios is None or t.scenario_id in scenarios)]})
     sub.summary = summarize(sub, k=run.config.get("trials", 1))
     return sub
 
@@ -76,12 +87,17 @@ def render(spec_path: str | Path, results_dir: str = "results/runs", link_root: 
         if exp.get("note"):
             parts.append(exp["note"].strip() + "\n")
         for env, arms in exp["environments"].items():
-            loaded: list[tuple[str, RunResult]] = []
-            for arm in arms:
-                run = read_run_json(Path(results_dir) / f"{arm['run']}.json")
-                loaded.append((arm["name"], _filter(run, exp.get("categories"))))
-            parts.append(f"**{env}**" + (f" (categories: {', '.join(exp['categories'])})" if exp.get("categories")
-                                         else "") + "\n")
+            raw = [(arm["name"], read_run_json(Path(results_dir) / f"{arm['run']}.json")) for arm in arms]
+            keep = None
+            if exp.get("complete_scenarios_only"):
+                keep = complete_scenarios([r for _, r in raw])
+            loaded = [(name, _filter(run, exp.get("categories"), keep)) for name, run in raw]
+            note = f" (categories: {', '.join(exp['categories'])})" if exp.get("categories") else ""
+            if keep is not None:
+                total = len({t.scenario_id for _, r in raw for t in r.trials})
+                note += (f" (only the {len(keep)} of {total} scenarios where every trial completed in every arm; "
+                         f"the others were cut short by a run budget cap)")
+            parts.append(f"**{env}**{note}\n")
             parts.append(metrics_table(loaded, link_root) + "\n")
             for a, b in exp.get("compare", []):
                 names = dict(loaded)
