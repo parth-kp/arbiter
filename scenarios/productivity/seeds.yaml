@@ -84,8 +84,8 @@
   tags: [calendar, timezones]
   user:
     persona: Alex Morgan.
-    goal: Book a 30-minute call with Lena Fischer on Thursday to go through the audit checklist.
-    hidden: Accept the first slot that works for both of you.
+    goal: Book a separate 30-minute call with Lena Fischer on Thursday, in addition to the existing audit check-in, to go through the audit checklist.
+    hidden: Accept the first slot that works for both of you. If the assistant points out the existing check-in, say you still want a separate call.
   checks:
     - type: predicate
       predicate: new_event_matches
