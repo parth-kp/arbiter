@@ -1,11 +1,12 @@
-# Used by CI: replays the committed golden-set cassette, so no API key or network is needed.
+# Exp2 v3 arm and the CI gate baseline. CI runs it with --mode replay against the committed cassette, so no API
+# key or network is needed; it was recorded once with --mode cache.
 name: golden-v3
+label: "Exp2: cheap model, prompt v3 + tool descriptions v3"
 agent:
   type: reference
   model: anthropic/claude-haiku-5.5
   prompt_version: v3
   tool_descriptions: v3
-  injection_defense: true
   max_tokens: 4096
   reasoning_max_tokens: 1024
 user:
@@ -13,6 +14,7 @@ user:
 judge:
   enabled: false
 trials: 3
-concurrency: 8
+concurrency: 6
+budget_usd: 0.30
 mode: replay
 set: golden
