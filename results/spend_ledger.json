@@ -87,6 +87,104 @@
       "started": "2026-11-09T09:36:34+00:00",
       "updated": "2026-11-09T09:41:26+00:00"
     },
+    "20261109-094241-exp1-cheap-8dae": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.13158029
+      },
+      "by_provider": {
+        "openrouter": 752
+      },
+      "calls": 752,
+      "cost_usd": 0.13158029,
+      "started": "2026-11-09T09:42:43+00:00",
+      "updated": "2026-11-09T09:49:06+00:00"
+    },
+    "20261109-094906-exp1-cheap-638c": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.14610903
+      },
+      "by_provider": {
+        "openrouter": 625
+      },
+      "calls": 625,
+      "cost_usd": 0.14610903,
+      "started": "2026-11-09T09:49:08+00:00",
+      "updated": "2026-11-09T09:55:02+00:00"
+    },
+    "20261109-095702-exp1-cheap-3434": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.12654107
+      },
+      "by_provider": {
+        "openrouter": 795
+      },
+      "calls": 795,
+      "cost_usd": 0.12654107,
+      "started": "2026-11-09T09:57:05+00:00",
+      "updated": "2026-11-09T10:04:01+00:00"
+    },
+    "20261109-100402-exp1-cheap-356e": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.2211509
+      },
+      "by_provider": {
+        "openrouter": 927
+      },
+      "calls": 927,
+      "cost_usd": 0.2211509,
+      "started": "2026-11-09T10:04:04+00:00",
+      "updated": "2026-11-09T10:12:41+00:00"
+    },
+    "20261109-101432-exp1-strong-7a84": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.0236147,
+        "anthropic/claude-sonnet-5.5": 1.3749818
+      },
+      "by_provider": {
+        "openrouter": 705
+      },
+      "calls": 705,
+      "cost_usd": 1.39859663,
+      "started": "2026-11-09T10:14:35+00:00",
+      "updated": "2026-11-09T10:20:56+00:00"
+    },
+    "20261109-102057-exp1-strong-63d0": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.01698736,
+        "anthropic/claude-sonnet-5.5": 1.4055791
+      },
+      "by_provider": {
+        "openrouter": 437
+      },
+      "calls": 437,
+      "cost_usd": 1.42256651,
+      "started": "2026-11-09T10:20:59+00:00",
+      "updated": "2026-11-09T10:25:04+00:00"
+    },
+    "20261109-103929-exp1-cheap-b391": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.01202542
+      },
+      "by_provider": {
+        "openrouter": 49
+      },
+      "calls": 49,
+      "cost_usd": 0.01202542,
+      "started": "2026-11-09T10:39:33+00:00",
+      "updated": "2026-11-09T10:40:22+00:00"
+    },
+    "20261109-104022-exp2-v2-ba8c": {
+      "by_model": {
+        "anthropic/claude-haiku-5.5": 0.03132908
+      },
+      "by_provider": {
+        "openrouter": 260
+      },
+      "calls": 260,
+      "cost_usd": 0.03132908,
+      "started": "2026-11-09T10:40:24+00:00",
+      "updated": "2026-11-09T10:42:33+00:00"
+    },
     "build-smoke-2026-11-09": {
       "by_model": {
         "anthropic/claude-haiku-5.5": 3.2e-06,
@@ -114,5 +212,5 @@
       "updated": "2026-11-09T09:29:25+00:00"
     }
   },
-  "total_usd": 0.34134412
+  "total_usd": 3.83124332
 }
