@@ -48,8 +48,9 @@ def request_from_openai(body: dict) -> ChatRequest:
 
 
 class ArbiterTransport(httpx.AsyncBaseTransport):
-    def __init__(self, llm: LLMClient):
+    def __init__(self, llm: LLMClient, reasoning: dict | None = None):
         self.llm = llm
+        self.reasoning = reasoning
         self.trial_key = "unset"
         self.on_call = None
         self._n = 0
@@ -66,6 +67,8 @@ class ArbiterTransport(httpx.AsyncBaseTransport):
         if body.get("stream"):
             return httpx.Response(400, json={"error": {"message": "streaming is not supported by the Arbiter shim"}})
         req = request_from_openai(body)
+        if self.reasoning is not None and req.reasoning is None:
+            req = req.model_copy(update={"reasoning": self.reasoning})
         n = self._n
         self._n += 1
         calls: list[CallRecord] = []

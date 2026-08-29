@@ -10,7 +10,7 @@ from __future__ import annotations
 import httpx
 
 from arbiter.agents.openai_shim import ArbiterTransport
-from arbiter.core.agent import Agent, AgentConfig, AgentDeps, TurnContext
+from arbiter.core.agent import Agent, AgentConfig, AgentDeps, TurnContext, reasoning_param
 from arbiter.core.registry import import_object
 
 
@@ -23,7 +23,7 @@ class LangGraphAgent(Agent):
         if not graph_path:
             raise ValueError("langgraph agent needs agent.graph: 'module:build_graph'")
         self.build_graph = import_object(graph_path)
-        self.transport = ArbiterTransport(deps.llm)
+        self.transport = ArbiterTransport(deps.llm, reasoning_param(config.reasoning_max_tokens))
         self.llm = ChatOpenAI(
             model=config.model, api_key="arbiter-shim", base_url="http://arbiter.shim/v1",
             temperature=config.temperature, max_tokens=config.max_tokens, max_retries=0,

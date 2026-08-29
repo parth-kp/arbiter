@@ -1,0 +1,19 @@
+name: exp4-defense-on
+label: "Exp4: v3 with injection defence on"
+agent:
+  type: reference
+  model: anthropic/claude-haiku-5.5
+  prompt_version: v3
+  tool_descriptions: v3
+  injection_defense: true
+  max_tokens: 4096
+  reasoning_max_tokens: 1024
+user:
+  model: anthropic/claude-haiku-5.5
+judge:
+  enabled: false
+trials: 3
+concurrency: 6
+budget_usd: 0.25
+mode: cache
+set: golden

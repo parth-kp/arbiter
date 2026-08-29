@@ -102,6 +102,7 @@ def test_langgraph_agent_runs_through_arbiter_and_replays_offline(tmp_path):
     assert t.success, (t.error, [c for c in t.checks if not c.passed])
     assert [c.tool for c in t.tool_calls] == ["verify_member", "checkout_book"]
     assert chain.requests[0].messages[0].content.startswith("You are a careful support agent")
+    assert chain.requests[0].reasoning == {"max_tokens": 1024}
     assert len(t.calls) == 3
 
     rep = run_with(cfg, LLMClient(None, cassette=Cassette(path, CassetteMode.REPLAY)))

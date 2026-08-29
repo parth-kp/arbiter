@@ -1,4 +1,5 @@
-name: langgraph
+name: exp5-langgraph
+label: "Exp5: external LangGraph agent via adapter"
 agent:
   type: langgraph
   graph: langgraph_agent.graph:build_graph
@@ -11,6 +12,6 @@ judge:
   enabled: false
 trials: 3
 concurrency: 4
-budget_usd: 0.30
+budget_usd: 0.25
 mode: cache
 set: golden
