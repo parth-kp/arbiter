@@ -1,20 +1,19 @@
-# Exp2 v3 arm and the CI gate baseline. CI runs it with --mode replay against the committed cassette, so no API
-# key or network is needed; it was recorded once with --mode cache.
-name: golden-v3
-label: "Exp2: cheap model, prompt v3 + tool descriptions v3"
+# CI gate: replays the committed Exp1 cheap-model golden-set cassette (prompt v1), so no API key or network is
+# needed. Baselines in baselines/ are the committed runs this cassette recorded.
+name: exp1-cheap
+label: "CI gate replay: cheap model, prompt v1"
 agent:
   type: reference
   model: anthropic/claude-haiku-5.5
-  prompt_version: v3
-  tool_descriptions: v3
+  prompt_version: v1
   max_tokens: 4096
   reasoning_max_tokens: 1024
 user:
   model: anthropic/claude-haiku-5.5
+  temperature: 0.7
 judge:
   enabled: false
 trials: 3
-concurrency: 6
-budget_usd: 0.30
+concurrency: 8
 mode: replay
 set: golden
