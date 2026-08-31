@@ -71,12 +71,12 @@ export default function Runs() {
                     <th className="num">Attempts</th>
                     <th className="num">$/conv</th>
                     <th className="num">$/success</th>
-                    <th className="num">Spend</th>
+                    <th className="num" title="Recorded cost of the run: agent under test plus simulated user and judge">Run cost</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map(r => {
-                    const spend = r.spend ? Object.values(r.spend).reduce((a, b) => a + b, 0) : null
+                    const spend = r.spend ? (r.spend.agent_cost_usd ?? 0) + (r.spend.eval_overhead_usd ?? 0) : null
                     return (
                       <tr key={r.id} className={sel.includes(r.id) ? 'selected' : ''}>
                         <td>

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useApi } from '../api'
 import { Async, Empty } from '../ui'
@@ -44,6 +45,7 @@ function ScenarioList({ ids, runId, empty }: { ids: string[]; runId: string; emp
 }
 
 export default function Compare() {
+  const [showSame, setShowSame] = useState(false)
   const [q] = useSearchParams()
   const a = q.get('a') ?? ''
   const b = q.get('b') ?? ''
@@ -84,7 +86,7 @@ export default function Compare() {
               <table className="data config">
                 <thead><tr><th>Key</th><th>Baseline</th><th>Candidate</th></tr></thead>
                 <tbody>
-                  {[...rows.filter(r => r.diff), ...rows.filter(r => !r.diff)].map(r => (
+                  {[...rows.filter(r => r.diff), ...(showSame ? rows.filter(r => !r.diff) : [])].map(r => (
                     <tr key={r.k} className={r.diff ? 'diff' : 'same'}>
                       <td className="mono">{r.k}</td>
                       <td className="mono">{r.a ?? dash}</td>
@@ -93,6 +95,9 @@ export default function Compare() {
                   ))}
                 </tbody>
               </table>
+              <button className="btn link" onClick={() => setShowSame(v => !v)}>
+                {showSame ? 'Hide identical settings' : `Show ${rows.filter(r => !r.diff).length} identical settings`}
+              </button>
             </div>
           )}
 
