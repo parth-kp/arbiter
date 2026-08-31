@@ -1,0 +1,24 @@
+# Which committed runs back which table. `arbiter report` renders docs/results.md from this file.
+experiments:
+  - title: "Exp1a: cheap vs strong model, prompt v1 (paired on fully completed scenarios)"
+    note: >
+      The strong arm hit its per-run budget cap ($1.60) before finishing, so both arms are compared only on scenarios
+      where all 3 trials completed in both runs. That is 19 of 20 store scenarios but only 9 of 20 productivity
+      scenarios, so the productivity comparison is small and should be read as indicative.
+    complete_scenarios_only: true
+    environments:
+      store:
+        - {name: "cheap (Haiku 5.5)", run: 20261109-103738-exp1-cheap-d7e5}
+        - {name: "strong (Sonnet 5.5)", run: 20261109-103739-exp1-strong-4137}
+      productivity:
+        - {name: "cheap (Haiku 5.5)", run: 20261109-103929-exp1-cheap-b391}
+        - {name: "strong (Sonnet 5.5)", run: 20261109-103742-exp1-strong-bd3b}
+    compare:
+      - ["cheap (Haiku 5.5)", "strong (Sonnet 5.5)"]
+  - title: "Exp1b: cheap model on the full golden set (20 scenarios x 3 trials per environment)"
+    note: These are also the committed CI baselines (`baselines/`), replayed by `arbiter gate` in CI.
+    environments:
+      store:
+        - {name: "cheap (Haiku 5.5), v1", run: 20261109-103738-exp1-cheap-d7e5}
+      productivity:
+        - {name: "cheap (Haiku 5.5), v1", run: 20261109-103929-exp1-cheap-b391}
