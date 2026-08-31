@@ -12,13 +12,14 @@ gates regressions in CI, offline, by replaying recorded model responses.
 
 <br>
 
-![Tests](https://img.shields.io/badge/tests-181_passing_offline-1d7a4a?style=flat-square&logo=pytest&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-183_passing_offline-1d7a4a?style=flat-square&logo=pytest&logoColor=white)
 ![Scenarios](https://img.shields.io/badge/scenarios-151_(40_golden)-1f3a34?style=flat-square)
 ![CI gate](https://img.shields.io/badge/CI_gate-replay,_no_API_key-2858c9?style=flat-square&logo=githubactions&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-946200?style=flat-square)
 
 [Why](#-why-arbiter) ·
+[Results](#-results) ·
 [10-line quick eval](#-evaluate-your-own-agent-in-10-lines) ·
 [Features](#-features) ·
 [How it works](#-how-an-evaluation-works) ·
@@ -29,6 +30,14 @@ gates regressions in CI, offline, by replaying recorded model responses.
 </div>
 
 ---
+
+<div align="center">
+<img src="docs/screenshots/compare-runs.png" alt="Dashboard comparing the cheap and strong model on the store golden set" width="100%">
+<sub><b>Cheap vs strong model, store golden set, paired by scenario.</b> Only the settings that differ are shown. Both
+models reach 91.7% success on 20 scenarios × 3 trials, and no category difference is significant (p ≥ 0.5). Haiku
+costs $0.0018 per success against Sonnet's $0.025. This view includes one strong-model trial the run's budget cap
+cut short; the <a href="docs/EVALS.md#7-experiments">EVALS</a> comparison excludes it.</sub>
+</div>
 
 ## 🎯 Why Arbiter
 
@@ -44,8 +53,9 @@ LLM. Arbiter grades what the agent *did*:
   attempt* separately from violations that got through.
 - **Reliability, not just accuracy.** Every scenario runs *k* times. pass^k ("succeeded every time") is reported
   next to success rate, with Wilson intervals and paired significance tests when comparing runs.
-- **An LLM judge only where it's needed,** for qualities like "asked a clarifying question", and only after its
-  agreement with human labels has been measured.
+- **An LLM judge only where it's needed,** for qualities like "asked a clarifying question". It stays
+  informational until its agreement with human labels is measured; the labelling page and `arbiter calibrate`
+  (Cohen's kappa per criterion) are built in.
 
 ## ⚡ Evaluate your own agent in 10 lines
 
@@ -100,7 +110,7 @@ Already have an agent elsewhere? Point Arbiter at it instead:
 <img src="https://img.shields.io/badge/Vite-5-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite 5">
 </td></tr>
 <tr><td><b>Quality &amp; ops</b></td><td>
-<img src="https://img.shields.io/badge/pytest-181_tests-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" alt="pytest">
+<img src="https://img.shields.io/badge/pytest-183_tests-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" alt="pytest">
 <img src="https://img.shields.io/badge/Ruff-lint-D7FF64?style=for-the-badge&logo=ruff&logoColor=black" alt="Ruff">
 <img src="https://img.shields.io/badge/GitHub_Actions-reusable_action-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="GitHub Actions">
 <img src="https://img.shields.io/badge/Docker_Compose-one_command_demo-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose">
@@ -185,6 +195,23 @@ Already have an agent elsewhere? Point Arbiter at it instead:
 - OpenTelemetry spans per trial, user turn, agent turn and model call, exported to Langfuse when configured.
 
 </td>
+</tr>
+</table>
+
+## 📸 Screenshots
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/scenario-detail.png" alt="Scenario detail with transcript, tool calls and checks"><p align="center"><sub><b>Scenario detail</b>: every trial's transcript with collapsible tool calls, final-state and policy check results, cost and state diff</sub></p></td>
+<td width="50%"><img src="docs/screenshots/failure-patterns.png" alt="Failure patterns grouped by root cause"><p align="center"><sub><b>Failure patterns</b>: Haiku invented tent prices in all 3 out-of-scope trials (60% of store failures); two return-then-refund misses follow</sub></p></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/runs-list.png" alt="Runs list with success, pass^k, violations, attempts and cost"><p align="center"><sub><b>Runs</b>: configuration, success with 95% CI, pass^k, violations, blocked attempts, $/conversation and $/success; tick two to compare</sub></p></td>
+<td width="50%"><img src="docs/screenshots/approval-queue.png" alt="Human approval queue with pending refunds"><p align="center"><sub><b>Approval queue</b>: refunds above $200 that the store's rules routed to a human during runs ($200.01 sleeping bag, $500 kayak)</sub></p></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/screenshots/run-detail.png" alt="Run detail with per-category metrics"><p align="center"><sub><b>Run detail</b>: headline metrics and the per-category breakdown for the productivity baseline (96.7% success, 28.3% of trials with a blocked attempt)</sub></p></td>
+<td width="50%"><img src="docs/screenshots/labelling.png" alt="Labelling page for judge calibration"><p align="center"><sub><b>Labelling</b>: transcript on the left, rubric criteria with pass / fail / n/a definitions on the right, for judge calibration</sub></p></td>
 </tr>
 </table>
 
@@ -274,6 +301,29 @@ stateDiagram-v2
 
 </details>
 
+## 📊 Results
+
+Experiment 1 compared the cheap model (`claude-haiku-5.5`) with the strong one (`claude-sonnet-5.5`) on the frozen
+golden set, with the v1 prompt, 3 trials per scenario. Every number below comes from committed run JSON via
+`arbiter report`; methodology, case studies and caveats are in **[docs/EVALS.md](docs/EVALS.md)**.
+
+| Environment | Model | Success [95% CI] | pass^3 | Violations | Blocked attempts | $/success |
+|---|---|---|---|---|---|---|
+| Store (19 shared scenarios) | Haiku 5.5 | 91.2% [81–96] | 84.2% | 5.3% | 0.0% | $0.0019 |
+| | Sonnet 5.5 | 94.7% [86–98] | 94.7% | 5.3% | 0.0% | $0.025 |
+| Productivity (9 shared scenarios) | Haiku 5.5 | 100.0% [88–100] | 100.0% | 0.0% | 37.0% | $0.0029 |
+| | Sonnet 5.5 | 96.3% [82–99] | 88.9% | 0.0% | 14.8% | $0.043 |
+
+- **No difference is statistically significant** (paired permutation test: store p = 0.50, productivity p = 1.0).
+  Sonnet was more *consistent* in store (pass^3 94.7% vs 84.2%) at roughly 13× the cost per success.
+- **The models differ most in what the rules blocked:** Haiku tried to send email before confirmation in 37% of
+  productivity trials, Sonnet in 14.8%. The code-enforced rule stopped every attempt, so violations stayed at 0%.
+- **Both models invented prices** when asked for product advice (3/3 trials each).
+- **Caveats:** the strong arm hit its per-run budget cap, so arms are compared only on scenarios where every trial
+  completed (19 of 20 store, 9 of 20 productivity). Experiments 2–6 (prompt iterations, retrieval, injection
+  defences, an external LangGraph agent, a cost router) and human judge calibration were not run in this release.
+  Their tooling is built and tested. Total live spend for the whole build: **$3.83** of a $5 cap.
+
 ## 🌐 Two deliberately different example environments
 
 | | 🛒 Online store support | 📅 Personal productivity assistant |
@@ -302,7 +352,7 @@ Add `--profile postgres` to store results in PostgreSQL instead of SQLite (serve
 ```bash
 git clone <this repo> && cd arbiter
 uv sync                                    # Python 3.12, installs the `arbiter` CLI
-uv run pytest -q                           # 181 tests, offline, no keys needed
+uv run pytest -q                           # 183 tests, offline, no keys needed
 uv run arbiter env list
 
 # replay a recorded run: deterministic, free
@@ -374,7 +424,7 @@ because the agent's behaviour drifted from the recording, also fail the gate. Th
 ## 🧪 Testing
 
 ```bash
-uv run pytest -q        # 181 passed, offline: no API keys, no network
+uv run pytest -q        # 183 passed, offline: no API keys, no network
 ```
 
 | Area | What's covered |
