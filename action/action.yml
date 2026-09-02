@@ -41,9 +41,10 @@ runs:
     - uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ inputs.python-version }}
+        activate-environment: true
     - name: Install Arbiter
       shell: bash
-      run: uv pip install --system "${{ inputs.package }}"
+      run: uv pip install "${{ inputs.package }}"
     - name: Run evaluation
       id: run
       shell: bash
